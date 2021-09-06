@@ -1,2 +1,2 @@
 # AdaptiveHttpServer
-A Runtime Adaptive version of the java HttpServer
+A runtime-adaptive java HttpServer, equipped with a lightweight state monitoring infrastructure
