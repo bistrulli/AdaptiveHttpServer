@@ -6,3 +6,8 @@ target
 
 #ignore the data files
 data
+
+#ignore eclipse project files
+.classpath
+.project
+.settings
