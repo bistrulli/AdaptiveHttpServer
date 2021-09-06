@@ -1,0 +1,8 @@
+# Ignore Mac system files
+.DS_store
+
+#ignore the built java file
+target
+
+#ignore the data files
+data

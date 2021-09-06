@@ -1,0 +1,2 @@
+gcc -I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux -fPIC -shared GetThread.c -o libGetThreadID.so
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/mpclqn/SimpleTask/jni
