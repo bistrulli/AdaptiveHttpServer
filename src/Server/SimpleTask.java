@@ -48,9 +48,12 @@ public class SimpleTask {
 	String name = null;
 
 	ConcurrentLinkedQueue<Integer> tids = null;
+	
+	private HashMap<String, Long> enqueueTime=null;
 
 	public SimpleTask(String address, int port, HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize,
 			boolean isEmulated, String name) {
+		this.setEnqueueTime(new HashMap<String, Long>());
 		this.setName(name);
 		this.threadpoolSize = tsize;
 		this.entries = entries;
@@ -72,6 +75,7 @@ public class SimpleTask {
 	}
 
 	public SimpleTask(HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize, String name) {
+		this.setEnqueueTime(new HashMap<String, Long>());
 		this.setName(name);
 		this.isGenerator = true;
 		this.threadpoolSize = tsize;
@@ -268,6 +272,27 @@ public class SimpleTask {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public HashMap<String, Long> getEnqueueTime() {
+		return enqueueTime;
+	}
+
+	public void setEnqueueTime(HashMap<String, Long> enqueueTime) {
+		this.enqueueTime = enqueueTime;
+	}
+	
+	public Map<String, String> queryToMap(String query) {
+		Map<String, String> result = new HashMap<>();
+		for (String param : query.split("&")) {
+			String[] entry = param.split("=");
+			if (entry.length > 1) {
+				result.put(entry[0], entry[1]);
+			} else {
+				result.put(entry[0], "");
+			}
+		}
+		return result;
 	}
 
 }

@@ -45,7 +45,7 @@ public class AcquireHttpHandler implements HttpHandler {
 	@Override
 	public void handle(HttpExchange req) throws IOException {
 		SimpleTask.getLogger().debug(String.format("%s recieved", this.task.getName()));
-		Map<String, String> params = this.queryToMap(req.getRequestURI().getQuery());
+		Map<String, String> params = this.getTask().queryToMap(req.getRequestURI().getQuery());
 		if (params.get("entry") == null || params.get("entry").equals("")) {
 			SimpleTask.getLogger().error("Request with no specified entry");
 		}
@@ -71,6 +71,7 @@ public class AcquireHttpHandler implements HttpHandler {
 			// PER QUESTA APPLICAZIONE NON SERVE GPS
 			// SimpleTask.getLogger().debug("GPS choice made");
 			// this.task.getThreadpool().submit(this.backlog.get(this.rnd.nextInt(this.backlog.size())));
+			this.task.getEnqueueTime().put(params.get("id"),System.nanoTime());
 
 			// implemento fcfs usando la coda del threadpool.
 			this.task.getThreadpool()
@@ -87,19 +88,6 @@ public class AcquireHttpHandler implements HttpHandler {
 
 	public void setTask(SimpleTask task) {
 		this.task = task;
-	}
-
-	public Map<String, String> queryToMap(String query) {
-		Map<String, String> result = new HashMap<>();
-		for (String param : query.split("&")) {
-			String[] entry = param.split("=");
-			if (entry.length > 1) {
-				result.put(entry[0], entry[1]);
-			} else {
-				result.put(entry[0], "");
-			}
-		}
-		return result;
 	}
 
 }
