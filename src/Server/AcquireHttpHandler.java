@@ -71,7 +71,10 @@ public class AcquireHttpHandler implements HttpHandler {
 			// PER QUESTA APPLICAZIONE NON SERVE GPS
 			// SimpleTask.getLogger().debug("GPS choice made");
 			// this.task.getThreadpool().submit(this.backlog.get(this.rnd.nextInt(this.backlog.size())));
-			this.task.getEnqueueTime().put(params.get("id"),Long.valueOf(params.get("stime")));
+			long stime=System.nanoTime();
+			if(params.get("stime")!=null)
+				stime=Long.valueOf(params.get("stime"));
+			this.task.getEnqueueTime().put(params.get("id"),stime);
 
 			// implemento fcfs usando la coda del threadpool.
 			this.task.getThreadpool()
