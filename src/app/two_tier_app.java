@@ -47,7 +47,7 @@ public class two_tier_app {
 		HashMap<String, Long> clientEntries_stimes = new HashMap<>();
 		clientEntries.put("think", two_tier_sys.Client.class);
 		clientEntries_stimes.put("think", 1000l);
-		final SimpleTask client = new SimpleTask(clientEntries, clientEntries_stimes, initDriver, "Client");
+		final SimpleTask client = new SimpleTask(clientEntries, clientEntries_stimes, initDriver, "Client","localhost");
 
 		// instatiate tier1 class
 		HashMap<String, Class> t1Entries = new HashMap<>();
@@ -55,7 +55,7 @@ public class two_tier_app {
 		t1Entries.put("e1", Tier1HTTPHandler.class);
 		t1Entries_stimes.put("e1", 100l);
 
-		final SimpleTask t1 = new SimpleTask("localhost", 3000, t1Entries, t1Entries_stimes,initDriver,two_tier_app.isEmu, "t1");
+		final SimpleTask t1 = new SimpleTask("localhost", 3000, t1Entries, t1Entries_stimes,initDriver,two_tier_app.isEmu, "t1","localhost");
 		t1.setHwCore(1f);
 		return new SimpleTask[] { t1, client };
 	}

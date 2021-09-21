@@ -20,7 +20,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
 import adaptationHandler.AdaptationHandler2;
-import app.three_tier_app;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -44,6 +43,8 @@ public class SimpleTask {
 	private JedisPool jedisPool;
 	private boolean isGenerator = false;
 	private static Logger logger = LoggerFactory.getLogger(SimpleTask.class);
+	
+	private String jedisHost=null;
 
 	String name = null;
 
@@ -52,14 +53,15 @@ public class SimpleTask {
 	private HashMap<String, Long> enqueueTime=null;
 
 	public SimpleTask(String address, int port, HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize,
-			boolean isEmulated, String name) {
+			boolean isEmulated, String name,String jedisHost) {
 		this.setEnqueueTime(new HashMap<String, Long>());
 		this.setName(name);
 		this.threadpoolSize = tsize;
 		this.entries = entries;
 		this.setEmulated(isEmulated);
+		this.jedisHost=jedisHost;
 		try {
-			this.server = HttpServer.create(new InetSocketAddress(address, port), 3000);
+			this.server = HttpServer.create(new InetSocketAddress(address, port), this.backlogsize);
 			this.setPort(port);
 			this.server.createContext("/",new AcquireHttpHandler(this));
 			
@@ -74,9 +76,10 @@ public class SimpleTask {
 		this.adaptHandler = new AdaptationHandler2(this);
 	}
 
-	public SimpleTask(HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize, String name) {
+	public SimpleTask(HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize, String name,String jedisHost) {
 		this.setEnqueueTime(new HashMap<String, Long>());
 		this.setName(name);
+		this.jedisHost=jedisHost;
 		this.isGenerator = true;
 		this.threadpoolSize = tsize;
 		this.entries = entries;
@@ -84,6 +87,7 @@ public class SimpleTask {
 		this.initThreadPoolExecutor();
 		this.threadpool.allowCoreThreadTimeOut(true);
 		this.initJedisPool();
+		this.jedisHost=jedisHost;
 	}
 
 	public void setThreadPoolSize(int size) throws Exception {
@@ -239,7 +243,7 @@ public class SimpleTask {
 	}
 
 	public void initJedisPool() {
-		this.initJedisPool(2000, "localhost");
+		this.initJedisPool(2000, this.jedisHost);
 	}
 
 	public void initThreadPoolExecutor() {

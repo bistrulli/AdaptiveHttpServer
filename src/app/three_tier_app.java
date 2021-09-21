@@ -49,7 +49,7 @@ public class three_tier_app {
 		HashMap<String, Long> clientEntries_stimes = new HashMap<>();
 		clientEntries.put("think", Client.class);
 		clientEntries_stimes.put("think", 1000l);
-		final SimpleTask client = new SimpleTask(clientEntries, clientEntries_stimes, initDriver, "Client");
+		final SimpleTask client = new SimpleTask(clientEntries, clientEntries_stimes, initDriver, "Client","localhost");
 
 		// instatiate tier1 class
 		HashMap<String, Class> t1Entries = new HashMap<>();
@@ -63,8 +63,8 @@ public class three_tier_app {
 		t2Entries.put("e2", Tier2HTTPHandler.class);
 		t2Entries_stimes.put("e2", 100l);
 
-		final SimpleTask t1 = new SimpleTask("localhost", 3000, t1Entries, t1Entries_stimes,1,three_tier_app.isEmu, "t1");
-		final SimpleTask t2 = new SimpleTask("localhost", 3001, t2Entries, t2Entries_stimes,1,three_tier_app.isEmu, "t2");
+		final SimpleTask t1 = new SimpleTask("localhost", 3000, t1Entries, t1Entries_stimes,1,three_tier_app.isEmu, "t1","localhost");
+		final SimpleTask t2 = new SimpleTask("localhost", 3001, t2Entries, t2Entries_stimes,1,three_tier_app.isEmu, "t2","localhost");
 		t1.setHwCore(1f);
 		t2.setHwCore(1f);
 		return new SimpleTask[] { t2,t1, client };
