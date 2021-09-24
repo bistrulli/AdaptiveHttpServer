@@ -61,7 +61,7 @@ public class SimpleTask {
 		this.setEmulated(isEmulated);
 		this.jedisHost=jedisHost;
 		try {
-			this.server = HttpServer.create(new InetSocketAddress(address, port), this.backlogsize);
+			this.server = HttpServer.create(new InetSocketAddress(port), this.backlogsize);
 			this.setPort(port);
 			this.server.createContext("/",new AcquireHttpHandler(this));
 			
