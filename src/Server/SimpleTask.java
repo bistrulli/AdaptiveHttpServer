@@ -73,7 +73,7 @@ public class SimpleTask {
 		this.tids = new ConcurrentLinkedQueue<Integer>();
 		this.sTimes = sTimes;
 		// if(this.isEmulated)
-		this.adaptHandler = new AdaptationHandler2(this);
+		this.adaptHandler = new AdaptationHandler2(this,this.jedisHost);
 	}
 
 	public SimpleTask(HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize, String name,String jedisHost) {

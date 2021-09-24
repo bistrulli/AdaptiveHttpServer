@@ -1,14 +1,6 @@
 package adaptationHandler;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import Server.SimpleTask;
@@ -19,9 +11,9 @@ public class AdaptationHandler2 extends Thread {
 	private SimpleTask task = null;
 	private Jedis jedis = null;
 
-	public AdaptationHandler2(SimpleTask task) {
+	public AdaptationHandler2(SimpleTask task,String jedisHost) {
 		this.task = task;
-		this.jedis = new Jedis();
+		this.jedis = new Jedis(jedisHost);
 	}
 
 	@Override
