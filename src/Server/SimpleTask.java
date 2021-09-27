@@ -239,11 +239,12 @@ public class SimpleTask {
 	public void initJedisPool(int poolSize, String poolAddr) {
 		JedisPoolConfig cfg = new JedisPoolConfig();
 		cfg.setMaxTotal(poolSize);
+		cfg.setMaxWaitMillis(60000);
 		this.jedisPool = new JedisPool(cfg, poolAddr);
 	}
 
 	public void initJedisPool() {
-		this.initJedisPool(2000, this.jedisHost);
+		this.initJedisPool(200, this.jedisHost);
 	}
 
 	public void initThreadPoolExecutor() {
