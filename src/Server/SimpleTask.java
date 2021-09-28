@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -247,8 +248,8 @@ public class SimpleTask {
 	}
 
 	public void initThreadPoolExecutor() {
-		this.threadpool = new ThreadPoolExecutor(this.threadpoolSize, this.threadpoolSize * 100, 1,
-				TimeUnit.NANOSECONDS, new ArrayBlockingQueue<Runnable>(20000));
+		this.threadpool = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE, 1,
+				TimeUnit.NANOSECONDS, new LinkedBlockingQueue<Runnable>());
 		this.threadpool.allowCoreThreadTimeOut(true);
 		if (!this.isGenerator)
 			this.server.setExecutor(null);
