@@ -35,7 +35,7 @@ public class AdaptationHandler2 extends Thread {
 //					if (swCore != null)
 //						this.task.setThreadPoolSize(swCore);
 					if (hwCore != null) {
-						int swcore= Double.valueOf(Math.ceil(hwCore)).intValue();
+						int swcore=Math.max(1, Double.valueOf(Math.ceil(hwCore)).intValue()); 
 						try {
 							this.task.setThreadPoolSize(swcore);
 						}catch (IllegalArgumentException e) {
