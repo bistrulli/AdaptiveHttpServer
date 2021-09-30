@@ -95,7 +95,7 @@ public abstract class TierHttpHandler implements Runnable {
 		}
 	}
 
-	public void measureIngress() {
+	public synchronized void  measureIngress() {
 		Jedis jedis = this.getLqntask().getJedisPool().getResource();
 		Transaction t = jedis.multi();
 		t.incr(String.format("%s_ex", this.getName()));
@@ -108,7 +108,7 @@ public abstract class TierHttpHandler implements Runnable {
 		jedis.close();
 	}
 
-	public void measureReturn() {
+	public synchronized void measureReturn() {
 		Jedis jedis = this.getLqntask().getJedisPool().getResource();
 		Transaction t = jedis.multi();
 		t.incr(String.format("%s_ex", this.getName()));

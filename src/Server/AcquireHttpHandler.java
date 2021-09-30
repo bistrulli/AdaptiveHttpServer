@@ -27,7 +27,7 @@ public class AcquireHttpHandler implements HttpHandler {
 		this.rnd = ThreadLocalRandom.current();
 	}
 
-	public void measure(String entry, String snd) {
+	public synchronized void measure(String entry, String snd) {
 		Jedis jedis = this.getTask().getJedisPool().getResource();
 		Transaction t = jedis.multi();
 
