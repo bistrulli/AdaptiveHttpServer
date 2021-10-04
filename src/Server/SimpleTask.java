@@ -13,6 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,8 @@ public class SimpleTask {
 	private boolean isEmulated = true;
 
 	private Integer backlogsize = 2000;
+	
+	private static AtomicBoolean toStopGracefully=new AtomicBoolean(false);
 
 	public ArrayBlockingQueue<HttpExchange> backlog = null;
 	private AdaptationHandler2 adaptHandler = null;
@@ -298,6 +301,14 @@ public class SimpleTask {
 			}
 		}
 		return result;
+	}
+
+	public static AtomicBoolean getToStopGracefully() {
+		return toStopGracefully;
+	}
+
+	public static void setToStopGracefully(AtomicBoolean toStopGracefully) {
+		SimpleTask.toStopGracefully = toStopGracefully;
 	}
 
 }
