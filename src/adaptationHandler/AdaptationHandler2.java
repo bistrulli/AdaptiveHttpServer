@@ -47,7 +47,7 @@ public class AdaptationHandler2 extends Thread {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				TimeUnit.MILLISECONDS.sleep(10L);
+				TimeUnit.MILLISECONDS.sleep(300L);
 			}
 		} catch (InterruptedException e) {
 		}
