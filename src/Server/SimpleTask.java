@@ -251,8 +251,8 @@ public class SimpleTask {
 	}
 
 	public void initThreadPoolExecutor() {
-		this.threadpool = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE, 1,
-				TimeUnit.NANOSECONDS, new LinkedBlockingQueue<Runnable>());
+		this.threadpool = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE, 2,
+				TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 		this.threadpool.allowCoreThreadTimeOut(true);
 		if (!this.isGenerator)
 			this.server.setExecutor(null);
