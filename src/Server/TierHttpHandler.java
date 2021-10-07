@@ -108,22 +108,20 @@ public abstract class TierHttpHandler implements Runnable {
 		t.exec();
 		t.close();
 		SimpleTask.getLogger().debug(
-				String.format("%s ingress-%s", this.getName(), jedis.get(String.format("%s_ex", this.getName()))));
+				String.format("%s ingress-%s", this.getName(), this.jedis.get(String.format("%s_ex", this.getName()))));
 	}
 
 	public void measureReturn() {
 		this.jedis.incr(String.format("%s_ex", this.getName()));
-		this.jedis.close();
 		SimpleTask.getLogger().debug(
-				String.format("%s return-%s", this.getName(), jedis.get(String.format("%s_ex", this.getName()))));
+				String.format("%s return-%s", this.getName(), this.jedis.get(String.format("%s_ex", this.getName()))));
 		
 	}
 
 	public void measureEgress() {
 		this.jedis.decr(String.format("%s_ex", this.getName()));
-		this.jedis.close();
 		SimpleTask.getLogger().debug(
-				String.format("%s egress-%s", this.getName(), jedis.get(String.format("%s_ex", this.getName()))));
+				String.format("%s egress-%s", this.getName(), this.jedis.get(String.format("%s_ex", this.getName()))));
 		
 	}
 
