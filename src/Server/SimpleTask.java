@@ -243,16 +243,18 @@ public class SimpleTask {
 	public void initJedisPool(int poolSize, String poolAddr) {
 		JedisPoolConfig cfg = new JedisPoolConfig();
 		cfg.setMaxTotal(poolSize);
+		cfg.setFairness(true);
+		cfg.setMaxWaitMillis(10000);
 		this.jedisPool = new JedisPool(cfg, poolAddr);
 	}
 
 	public void initJedisPool() {
-		this.initJedisPool(2000, this.jedisHost);
+		this.initJedisPool(300, this.jedisHost);
 	}
 
 	public void initThreadPoolExecutor() {
 		this.threadpool = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE, 2,
-				TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+				TimeUnit.NANOSECONDS, new LinkedBlockingQueue<Runnable>());
 		this.threadpool.allowCoreThreadTimeOut(true);
 		if (!this.isGenerator)
 			this.server.setExecutor(null);

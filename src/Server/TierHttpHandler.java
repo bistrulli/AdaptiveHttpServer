@@ -28,6 +28,7 @@ public abstract class TierHttpHandler implements Runnable {
 	private Integer tid = null;
 	private String webPageTpl = null;
 	private String name = null;
+	private Jedis jedis = null;
 
 	public TierHttpHandler(SimpleTask lqntask, HttpExchange req, long stime) {
 		this.setLqntask(lqntask);
@@ -37,6 +38,8 @@ public abstract class TierHttpHandler implements Runnable {
 		this.rnd = ThreadLocalRandom.current();
 		this.req = req;
 		// this.mgm = ManagementFactory.getThreadMXBean();
+		
+		this.jedis=lqntask.getJedisPool().getResource();
 
 		try {
 			final ClassLoader loader = this.getClass().getClassLoader();
@@ -47,7 +50,7 @@ public abstract class TierHttpHandler implements Runnable {
 		}
 	}
 
-	public abstract void handleResponse(HttpExchange req, String requestParamValue) throws InterruptedException;
+	public abstract void handleResponse(HttpExchange req, String requestParamValue) throws InterruptedException, IOException;
 
 	public abstract String getWebPageName();
 
@@ -93,43 +96,35 @@ public abstract class TierHttpHandler implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		finally {
+			this.getJedis().close();
+		}
 	}
 
-	public synchronized void  measureIngress() {
-		Jedis jedis = this.getLqntask().getJedisPool().getResource();
-		Transaction t = jedis.multi();
+	public void  measureIngress() {
+		Transaction t = this.jedis.multi();
 		t.incr(String.format("%s_ex", this.getName()));
 		t.decr(String.format("%s_bl", this.getName()));
 		t.exec();
 		t.close();
-		t = null;
-		this.getLqntask().getLogger().debug(
+		SimpleTask.getLogger().debug(
 				String.format("%s ingress-%s", this.getName(), jedis.get(String.format("%s_ex", this.getName()))));
-		jedis.close();
 	}
 
-	public synchronized void measureReturn() {
-		Jedis jedis = this.getLqntask().getJedisPool().getResource();
-		Transaction t = jedis.multi();
-		t.incr(String.format("%s_ex", this.getName()));
-		t.exec();
-		t.close();
-		t = null;
-		this.getLqntask().getLogger().debug(
+	public void measureReturn() {
+		this.jedis.incr(String.format("%s_ex", this.getName()));
+		this.jedis.close();
+		SimpleTask.getLogger().debug(
 				String.format("%s return-%s", this.getName(), jedis.get(String.format("%s_ex", this.getName()))));
-		jedis.close();
+		
 	}
 
 	public void measureEgress() {
-		Jedis jedis = this.getLqntask().getJedisPool().getResource();
-		Transaction t = jedis.multi();
-		t.decr(String.format("%s_ex", this.getName()));
-		t.exec();
-		t.close();
-		t = null;
-		this.getLqntask().getLogger().debug(
+		this.jedis.decr(String.format("%s_ex", this.getName()));
+		this.jedis.close();
+		SimpleTask.getLogger().debug(
 				String.format("%s egress-%s", this.getName(), jedis.get(String.format("%s_ex", this.getName()))));
-		jedis.close();
+		
 	}
 
 	public String getWebPageTpl() {
@@ -179,4 +174,14 @@ public abstract class TierHttpHandler implements Runnable {
 		// set value
 		// cgset t1 -r cpu.cfs_period_us=100000 -r cpu.cfs_quota_us=-1
 	}
+
+	public Jedis getJedis() {
+		return jedis;
+	}
+
+	public void setJedis(Jedis jedis) {
+		this.jedis = jedis;
+	}
+	
+	
 }
