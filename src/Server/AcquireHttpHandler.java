@@ -3,43 +3,59 @@ package Server;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Transaction;
+import net.spy.memcached.MemcachedClient;
 
 public class AcquireHttpHandler implements HttpHandler {
 
 	private SimpleTask task = null;
 	HttpExchange req = null;
 	ArrayList<Runnable> backlog = null;
-	private ThreadLocalRandom rnd;
+	private ThreadLocalRandom rnd = null;
+	private MemcachedClient memcachedClient = null;
 
 	public AcquireHttpHandler(SimpleTask task) {
 		this.task = task;
 		this.backlog = new ArrayList<Runnable>();
 		this.rnd = ThreadLocalRandom.current();
+		try {
+			this.memcachedClient = new MemcachedClient(new InetSocketAddress(this.task.getJedisHost(), 11211));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
-	public synchronized void measure(String entry, String snd) {
-		Jedis jedis = this.getTask().getJedisPool().getResource();
-		Transaction t = jedis.multi();
+//	public void measure(String entry, String snd) {
+//		
+//		Jedis jedis = this.getTask().getJedisPool().getResource();
+//		Transaction t = jedis.multi();
+//
+//		if (snd.equals("think"))
+//			t.decr("think");
+//		else
+//			t.decr(String.format("%s_ex", snd));
+//
+//		t.incr(String.format("%s_bl", entry));
+//		t.exec();
+//		t.close();
+//		jedis.close();
+//	}
 
-		if (snd.equals("think"))
-			t.decr("think");
-		else
-			t.decr(String.format("%s_ex", snd));
+	public void measure(String entry, String snd) {
 
-		t.incr(String.format("%s_bl", entry));
-		t.exec();
-		t.close();
-		jedis.close();
+		if (snd.equals("think")) {
+			this.memcachedClient.decr("think", 1);
+		} else {
+			this.memcachedClient.decr(String.format("%s_ex", snd), 1);
+		}
+		this.memcachedClient.incr(String.format("%s_bl", entry), 1);
 	}
 
 	@Override
@@ -71,10 +87,10 @@ public class AcquireHttpHandler implements HttpHandler {
 			// PER QUESTA APPLICAZIONE NON SERVE GPS
 			// SimpleTask.getLogger().debug("GPS choice made");
 			// this.task.getThreadpool().submit(this.backlog.get(this.rnd.nextInt(this.backlog.size())));
-			long stime=System.nanoTime();
-			if(params.get("stime")!=null)
-				stime=Long.valueOf(params.get("stime"));
-			this.task.getEnqueueTime().put(params.get("id"),stime);
+			long stime = System.nanoTime();
+			if (params.get("stime") != null)
+				stime = Long.valueOf(params.get("stime"));
+			this.task.getEnqueueTime().put(params.get("id"), stime);
 
 			// implemento fcfs usando la coda del threadpool.
 			this.task.getThreadpool()

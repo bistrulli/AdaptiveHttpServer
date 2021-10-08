@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
+import java.net.InetSocketAddress;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -14,6 +15,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.sun.net.httpserver.HttpExchange;
 
+import net.spy.memcached.MemcachedClient;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
 
@@ -28,7 +30,8 @@ public abstract class TierHttpHandler implements Runnable {
 	private Integer tid = null;
 	private String webPageTpl = null;
 	private String name = null;
-	private Jedis jedis = null;
+	//private Jedis jedis = null;
+	private MemcachedClient memcachedClient=null;
 
 	public TierHttpHandler(SimpleTask lqntask, HttpExchange req, long stime) {
 		this.setLqntask(lqntask);
@@ -39,7 +42,12 @@ public abstract class TierHttpHandler implements Runnable {
 		this.req = req;
 		// this.mgm = ManagementFactory.getThreadMXBean();
 		
-		this.jedis=lqntask.getJedisPool().getResource();
+		//this.jedis=lqntask.getJedisPool().getResource();
+		try {
+			this.memcachedClient = new MemcachedClient(new InetSocketAddress(this.lqntask.getJedisHost(), 11211));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		try {
 			final ClassLoader loader = this.getClass().getClassLoader();
@@ -97,31 +105,54 @@ public abstract class TierHttpHandler implements Runnable {
 			e.printStackTrace();
 		}
 		finally {
-			this.getJedis().close();
+			//this.getJedis().close();
+			this.memcachedClient.shutdown();
 		}
 	}
 
+//	public void  measureIngress() {
+//		Transaction t = this.jedis.multi();
+//		t.incr(String.format("%s_ex", this.getName()));
+//		t.decr(String.format("%s_bl", this.getName()));
+//		t.exec();
+//		t.close();
+//		SimpleTask.getLogger().debug(
+//				String.format("%s ingress-%s", this.getName(), this.jedis.get(String.format("%s_ex", this.getName()))));
+//	}
+	
 	public void  measureIngress() {
-		Transaction t = this.jedis.multi();
-		t.incr(String.format("%s_ex", this.getName()));
-		t.decr(String.format("%s_bl", this.getName()));
-		t.exec();
-		t.close();
+		
+		this.memcachedClient.incr(String.format("%s_ex", this.getName()),1);
+		this.memcachedClient.decr(String.format("%s_bl", this.getName()),1);
 		SimpleTask.getLogger().debug(
-				String.format("%s ingress-%s", this.getName(), this.jedis.get(String.format("%s_ex", this.getName()))));
+				String.format("%s ingress-%s", this.getName(), this.memcachedClient.get(String.format("%s_ex", this.getName()))));
 	}
 
+//	public void measureReturn() {
+//		this.jedis.incr(String.format("%s_ex", this.getName()));
+//		SimpleTask.getLogger().debug(
+//				String.format("%s return-%s", this.getName(), this.jedis.get(String.format("%s_ex", this.getName()))));
+//		
+//	}
+	
 	public void measureReturn() {
-		this.jedis.incr(String.format("%s_ex", this.getName()));
+		this.memcachedClient.incr(String.format("%s_ex", this.getName()),1);
 		SimpleTask.getLogger().debug(
-				String.format("%s return-%s", this.getName(), this.jedis.get(String.format("%s_ex", this.getName()))));
+				String.format("%s return-%s", this.getName(), this.memcachedClient.get(String.format("%s_ex", this.getName()))));
 		
 	}
 
+//	public void measureEgress() {
+//		this.jedis.decr(String.format("%s_ex", this.getName()));
+//		SimpleTask.getLogger().debug(
+//				String.format("%s egress-%s", this.getName(), this.jedis.get(String.format("%s_ex", this.getName()))));
+//		
+//	}
+	
 	public void measureEgress() {
-		this.jedis.decr(String.format("%s_ex", this.getName()));
+		this.memcachedClient.decr(String.format("%s_ex", this.getName()),1);
 		SimpleTask.getLogger().debug(
-				String.format("%s egress-%s", this.getName(), this.jedis.get(String.format("%s_ex", this.getName()))));
+				String.format("%s egress-%s", this.getName(), this.memcachedClient.get(String.format("%s_ex", this.getName()))));
 		
 	}
 
@@ -173,13 +204,23 @@ public abstract class TierHttpHandler implements Runnable {
 		// cgset t1 -r cpu.cfs_period_us=100000 -r cpu.cfs_quota_us=-1
 	}
 
-	public Jedis getJedis() {
-		return jedis;
+	public MemcachedClient getMemcachedClient() {
+		return memcachedClient;
 	}
 
-	public void setJedis(Jedis jedis) {
-		this.jedis = jedis;
+	public void setMemcachedClient(MemcachedClient memcachedClient) {
+		this.memcachedClient = memcachedClient;
 	}
+
+//	public Jedis getJedis() {
+//		return jedis;
+//	}
+//
+//	public void setJedis(Jedis jedis) {
+//		this.jedis = jedis;
+//	}
+	
+	
 	
 	
 }

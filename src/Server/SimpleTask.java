@@ -44,7 +44,7 @@ public class SimpleTask {
 	private AdaptationHandler2 adaptHandler = null;
 	private HashMap<String, Class> entries = null;
 	private HashMap<String, Long> sTimes = null;
-	private JedisPool jedisPool;
+	//private JedisPool jedisPool;
 	private boolean isGenerator = false;
 	private static Logger logger = LoggerFactory.getLogger(SimpleTask.class);
 	
@@ -73,7 +73,7 @@ public class SimpleTask {
 			e.printStackTrace();
 		}
 		this.initThreadPoolExecutor();
-		this.initJedisPool();
+		//this.initJedisPool();
 		this.tids = new ConcurrentLinkedQueue<Integer>();
 		this.sTimes = sTimes;
 		// if(this.isEmulated)
@@ -90,7 +90,7 @@ public class SimpleTask {
 		this.sTimes = sTimes;
 		this.initThreadPoolExecutor();
 		this.threadpool.allowCoreThreadTimeOut(true);
-		this.initJedisPool();
+		//this.initJedisPool();
 		this.jedisHost=jedisHost;
 	}
 
@@ -182,13 +182,13 @@ public class SimpleTask {
 		this.backlog = backlog;
 	}
 
-	public JedisPool getJedisPool() {
-		return jedisPool;
-	}
+//	public JedisPool getJedisPool() {
+//		return jedisPool;
+//	}
 
-	public void setJedisPool(JedisPool jedisPool) {
-		this.jedisPool = jedisPool;
-	}
+//	public void setJedisPool(JedisPool jedisPool) {
+//		this.jedisPool = jedisPool;
+//	}
 
 	public static Double sampleExp(double rate, ThreadLocalRandom rnd) {
 		return Double.valueOf((-1.0 / rate) * Math.log(1 - rnd.nextDouble()));
@@ -240,17 +240,17 @@ public class SimpleTask {
 		this.sTimes = sTimes;
 	}
 
-	public void initJedisPool(int poolSize, String poolAddr) {
-		JedisPoolConfig cfg = new JedisPoolConfig();
-		cfg.setMaxTotal(poolSize);
-		cfg.setFairness(true);
-		//cfg.setMaxWaitMillis(10000);
-		this.jedisPool = new JedisPool(cfg, poolAddr);
-	}
-
-	public void initJedisPool() {
-		this.initJedisPool(500, this.jedisHost);
-	}
+//	public void initJedisPool(int poolSize, String poolAddr) {
+//		JedisPoolConfig cfg = new JedisPoolConfig();
+//		cfg.setMaxTotal(poolSize);
+//		cfg.setFairness(true);
+//		//cfg.setMaxWaitMillis(10000);
+//		this.jedisPool = new JedisPool(cfg, poolAddr);
+//	}
+//
+//	public void initJedisPool() {
+//		this.initJedisPool(500, this.jedisHost);
+//	}
 
 	public void initThreadPoolExecutor() {
 		this.threadpool = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE, 2,
@@ -312,5 +312,15 @@ public class SimpleTask {
 	public static void setToStopGracefully(AtomicBoolean toStopGracefully) {
 		SimpleTask.toStopGracefully = toStopGracefully;
 	}
+
+	public String getJedisHost() {
+		return jedisHost;
+	}
+
+	public void setJedisHost(String jedisHost) {
+		this.jedisHost = jedisHost;
+	}
+	
+	
 
 }
