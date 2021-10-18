@@ -113,7 +113,7 @@ public class SimpleTask {
 		if (!this.isGenerator && this.getServer() != null)
 			this.getServer().start();
 		if (this.isGenerator) {
-			// only in case of workload generator, I assume that there is only one cliaent
+			// only in case of workload generator, I assume that there is only one client task
 			// type for each client task
 			for (int i = 0; i < this.threadpoolSize; i++) {
 				Constructor<? extends Runnable> c;
