@@ -57,7 +57,7 @@ public class SimpleTask {
 	private HashMap<String, Long> enqueueTime=null;
 
 	public SimpleTask(String address, int port, HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize,
-			boolean isEmulated, String name,String jedisHost) {
+			boolean isEmulated, String name,String jedisHost,long aHperiod) {
 		this.setEnqueueTime(new HashMap<String, Long>());
 		this.setName(name);
 		this.threadpoolSize = tsize;
@@ -76,8 +76,9 @@ public class SimpleTask {
 		//this.initJedisPool();
 		this.tids = new ConcurrentLinkedQueue<Integer>();
 		this.sTimes = sTimes;
-		// if(this.isEmulated)
-		this.adaptHandler = new AdaptationHandler2(this,this.jedisHost);
+		if(aHperiod>0) {
+			this.adaptHandler = new AdaptationHandler2(this,this.jedisHost);
+		}
 	}
 
 	public SimpleTask(HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize, String name,String jedisHost) {
