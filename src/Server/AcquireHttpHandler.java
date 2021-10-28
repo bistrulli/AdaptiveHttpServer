@@ -49,13 +49,19 @@ public class AcquireHttpHandler implements HttpHandler {
 //	}
 
 	public void measure(String entry, String snd) {
-
-		if (snd.equals("think")) {
-			this.memcachedClient.decr("think", 1);
-		} else {
-			this.memcachedClient.decr(String.format("%s_ex", snd), 1);
+		try {
+			if (snd.equals("think")) {
+				// this.memcachedClient.decr("think", 1);
+				MCAtomicUpdater.AtomicIncr(this.memcachedClient, -1,"think", 100);
+			} else {
+				// this.memcachedClient.decr(String.format("%s_ex", snd), 1);
+				MCAtomicUpdater.AtomicIncr(this.memcachedClient, -1, String.format("%s_bl", entry), 100);
+			}
+			// this.memcachedClient.incr(String.format("%s_bl", entry), 1);
+			MCAtomicUpdater.AtomicIncr(this.memcachedClient, 1, String.format("%s_bl", entry), 100);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		this.memcachedClient.incr(String.format("%s_bl", entry), 1);
 	}
 
 	@Override

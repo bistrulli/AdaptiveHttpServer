@@ -30,8 +30,8 @@ public abstract class TierHttpHandler implements Runnable {
 	private Integer tid = null;
 	private String webPageTpl = null;
 	private String name = null;
-	//private Jedis jedis = null;
-	private MemcachedClient memcachedClient=null;
+	// private Jedis jedis = null;
+	private MemcachedClient memcachedClient = null;
 
 	public TierHttpHandler(SimpleTask lqntask, HttpExchange req, long stime) {
 		this.setLqntask(lqntask);
@@ -41,8 +41,8 @@ public abstract class TierHttpHandler implements Runnable {
 		this.rnd = ThreadLocalRandom.current();
 		this.req = req;
 		// this.mgm = ManagementFactory.getThreadMXBean();
-		
-		//this.jedis=lqntask.getJedisPool().getResource();
+
+		// this.jedis=lqntask.getJedisPool().getResource();
 		try {
 			this.memcachedClient = new MemcachedClient(new InetSocketAddress(this.lqntask.getJedisHost(), 11211));
 		} catch (IOException e) {
@@ -58,7 +58,8 @@ public abstract class TierHttpHandler implements Runnable {
 		}
 	}
 
-	public abstract void handleResponse(HttpExchange req, String requestParamValue) throws InterruptedException, IOException;
+	public abstract void handleResponse(HttpExchange req, String requestParamValue)
+			throws InterruptedException, IOException;
 
 	public abstract String getWebPageName();
 
@@ -103,9 +104,8 @@ public abstract class TierHttpHandler implements Runnable {
 		} catch (InterruptedException e) {
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
-			//this.getJedis().close();
+		} finally {
+			// this.getJedis().close();
 			this.memcachedClient.shutdown();
 		}
 	}
@@ -119,13 +119,19 @@ public abstract class TierHttpHandler implements Runnable {
 //		SimpleTask.getLogger().debug(
 //				String.format("%s ingress-%s", this.getName(), this.jedis.get(String.format("%s_ex", this.getName()))));
 //	}
-	
-	public void  measureIngress() {
-		
-		this.memcachedClient.incr(String.format("%s_ex", this.getName()),1);
-		this.memcachedClient.decr(String.format("%s_bl", this.getName()),1);
-		SimpleTask.getLogger().debug(
-				String.format("%s ingress-%s", this.getName(), this.memcachedClient.get(String.format("%s_ex", this.getName()))));
+
+	public void measureIngress() {
+		try {
+			// this.memcachedClient.incr(String.format("%s_ex", this.getName()),1);
+			MCAtomicUpdater.AtomicIncr(this.memcachedClient, 1, String.format("%s_ex", this.getName()), 100);
+			// this.memcachedClient.decr(String.format("%s_bl", this.getName()),1);
+			MCAtomicUpdater.AtomicIncr(this.memcachedClient, -1, String.format("%s_bl", this.getName()), 100);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		SimpleTask.getLogger().debug(String.format("%s ingress-%s", this.getName(),
+				this.memcachedClient.get(String.format("%s_ex", this.getName()))));
 	}
 
 //	public void measureReturn() {
@@ -134,12 +140,17 @@ public abstract class TierHttpHandler implements Runnable {
 //				String.format("%s return-%s", this.getName(), this.jedis.get(String.format("%s_ex", this.getName()))));
 //		
 //	}
-	
+
 	public void measureReturn() {
-		this.memcachedClient.incr(String.format("%s_ex", this.getName()),1);
-		SimpleTask.getLogger().debug(
-				String.format("%s return-%s", this.getName(), this.memcachedClient.get(String.format("%s_ex", this.getName()))));
-		
+		//this.memcachedClient.incr(String.format("%s_ex", this.getName()), 1);
+		try {
+			MCAtomicUpdater.AtomicIncr(this.memcachedClient, 1, String.format("%s_ex", this.getName()), 100);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		SimpleTask.getLogger().debug(String.format("%s return-%s", this.getName(),
+				this.memcachedClient.get(String.format("%s_ex", this.getName()))));
+
 	}
 
 //	public void measureEgress() {
@@ -148,12 +159,17 @@ public abstract class TierHttpHandler implements Runnable {
 //				String.format("%s egress-%s", this.getName(), this.jedis.get(String.format("%s_ex", this.getName()))));
 //		
 //	}
-	
+
 	public void measureEgress() {
-		this.memcachedClient.decr(String.format("%s_ex", this.getName()),1);
-		SimpleTask.getLogger().debug(
-				String.format("%s egress-%s", this.getName(), this.memcachedClient.get(String.format("%s_ex", this.getName()))));
-		
+		//this.memcachedClient.decr(String.format("%s_ex", this.getName()), 1);
+		try {
+			MCAtomicUpdater.AtomicIncr(this.memcachedClient, -1, String.format("%s_ex", this.getName()), 100);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		SimpleTask.getLogger().debug(String.format("%s egress-%s", this.getName(),
+				this.memcachedClient.get(String.format("%s_ex", this.getName()))));
+
 	}
 
 	public String getWebPageTpl() {
@@ -219,8 +235,5 @@ public abstract class TierHttpHandler implements Runnable {
 //	public void setJedis(Jedis jedis) {
 //		this.jedis = jedis;
 //	}
-	
-	
-	
-	
+
 }
