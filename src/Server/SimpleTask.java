@@ -68,6 +68,7 @@ public class SimpleTask {
 			this.server = HttpServer.create(new InetSocketAddress(port), this.backlogsize);
 			this.setPort(port);
 			this.server.createContext("/",new AcquireHttpHandler(this));
+			this.server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
 			
 		} catch (IOException e) {
 			e.printStackTrace();
