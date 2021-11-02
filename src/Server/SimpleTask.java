@@ -14,6 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +23,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
 import adaptationHandler.AdaptationHandler2;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
 @SuppressWarnings("restriction")
 public class SimpleTask {
@@ -37,63 +36,66 @@ public class SimpleTask {
 	private boolean isEmulated = true;
 
 	private Integer backlogsize = 2000;
-	
-	private static AtomicBoolean toStopGracefully=new AtomicBoolean(false);
+
+	private static AtomicBoolean toStopGracefully = new AtomicBoolean(false);
 
 	public ArrayBlockingQueue<HttpExchange> backlog = null;
 	private AdaptationHandler2 adaptHandler = null;
 	private HashMap<String, Class> entries = null;
 	private HashMap<String, Long> sTimes = null;
-	//private JedisPool jedisPool;
+	private HashMap<String, AtomicInteger> state = null;
+	// private JedisPool jedisPool;
 	private boolean isGenerator = false;
 	private static Logger logger = LoggerFactory.getLogger(SimpleTask.class);
-	
-	private String jedisHost=null;
+
+	private String jedisHost = null;
 
 	String name = null;
 
 	ConcurrentLinkedQueue<Integer> tids = null;
-	
-	private HashMap<String, Long> enqueueTime=null;
+
+	private HashMap<String, Long> enqueueTime = null;
 
 	public SimpleTask(String address, int port, HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize,
-			boolean isEmulated, String name,String jedisHost,long aHperiod) {
+			boolean isEmulated, String name, String jedisHost, long aHperiod) {
 		this.setEnqueueTime(new HashMap<String, Long>());
 		this.setName(name);
 		this.threadpoolSize = tsize;
 		this.entries = entries;
 		this.setEmulated(isEmulated);
-		this.jedisHost=jedisHost;
+		this.jedisHost = jedisHost;
 		try {
 			this.server = HttpServer.create(new InetSocketAddress(port), this.backlogsize);
 			this.setPort(port);
-			this.server.createContext("/",new AcquireHttpHandler(this));
+			this.server.createContext("/", new AcquireHttpHandler(this));
 			this.server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		this.initThreadPoolExecutor();
-		//this.initJedisPool();
+		// this.initJedisPool();
 		this.tids = new ConcurrentLinkedQueue<Integer>();
 		this.sTimes = sTimes;
-		if(aHperiod>0) {
-			this.adaptHandler = new AdaptationHandler2(this,this.jedisHost);
+		if (aHperiod > 0) {
+			this.adaptHandler = new AdaptationHandler2(this, this.jedisHost);
 		}
+		this.initState();
 	}
 
-	public SimpleTask(HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize, String name,String jedisHost) {
+	public SimpleTask(HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize, String name,
+			String jedisHost) {
 		this.setEnqueueTime(new HashMap<String, Long>());
 		this.setName(name);
-		this.jedisHost=jedisHost;
+		this.jedisHost = jedisHost;
 		this.isGenerator = true;
 		this.threadpoolSize = tsize;
 		this.entries = entries;
 		this.sTimes = sTimes;
 		this.initThreadPoolExecutor();
 		this.threadpool.allowCoreThreadTimeOut(true);
-		//this.initJedisPool();
-		this.jedisHost=jedisHost;
+		// this.initJedisPool();
+		this.jedisHost = jedisHost;
 	}
 
 	public void setThreadPoolSize(int size) throws Exception {
@@ -115,7 +117,8 @@ public class SimpleTask {
 		if (!this.isGenerator && this.getServer() != null)
 			this.getServer().start();
 		if (this.isGenerator) {
-			// only in case of workload generator, I assume that there is only one client task
+			// only in case of workload generator, I assume that there is only one client
+			// task
 			// type for each client task
 			for (int i = 0; i < this.threadpoolSize; i++) {
 				Constructor<? extends Runnable> c;
@@ -255,8 +258,8 @@ public class SimpleTask {
 //	}
 
 	public void initThreadPoolExecutor() {
-		this.threadpool = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE, 2,
-				TimeUnit.NANOSECONDS, new LinkedBlockingQueue<Runnable>());
+		this.threadpool = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE, 2, TimeUnit.NANOSECONDS,
+				new LinkedBlockingQueue<Runnable>());
 		this.threadpool.allowCoreThreadTimeOut(true);
 		if (!this.isGenerator)
 			this.server.setExecutor(null);
@@ -293,7 +296,7 @@ public class SimpleTask {
 	public void setEnqueueTime(HashMap<String, Long> enqueueTime) {
 		this.enqueueTime = enqueueTime;
 	}
-	
+
 	public Map<String, String> queryToMap(String query) {
 		Map<String, String> result = new HashMap<>();
 		for (String param : query.split("&")) {
@@ -322,7 +325,21 @@ public class SimpleTask {
 	public void setJedisHost(String jedisHost) {
 		this.jedisHost = jedisHost;
 	}
-	
-	
+
+	private void initState() {
+		this.state = new HashMap<String, AtomicInteger>();
+		for (String key : this.entries.keySet()) {
+			this.state.put(key + "_bl", new AtomicInteger(0));
+			this.state.put(key + "_ex", new AtomicInteger(0));
+		}
+	}
+
+	public HashMap<String, AtomicInteger> getState() {
+		return state;
+	}
+
+	public void setState(HashMap<String, AtomicInteger> state) {
+		this.state = state;
+	}
 
 }
