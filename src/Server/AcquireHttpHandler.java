@@ -59,8 +59,6 @@ public class AcquireHttpHandler implements HttpHandler {
 			}
 			// this.memcachedClient.incr(String.format("%s_bl", entry), 1);
 			MCAtomicUpdater.AtomicIncr(this.memcachedClient, 1, String.format("%s_bl", entry), 100);
-			
-			this.memcachedClient.
 
 		} catch (Exception e) {
 			e.printStackTrace();
