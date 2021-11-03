@@ -141,10 +141,11 @@ public abstract class TierHttpHandler implements Runnable {
 //		
 //	}
 
-	public void measureReturn() {
+	public void measureReturn(String origin) {
 		//this.memcachedClient.incr(String.format("%s_ex", this.getName()), 1);
 		try {
 			MCAtomicUpdater.AtomicIncr(this.memcachedClient, 1, String.format("%s_ex", this.getName()), 100);
+			MCAtomicUpdater.AtomicIncr(this.memcachedClient, -1, origin, 100);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
