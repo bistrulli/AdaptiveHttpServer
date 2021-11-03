@@ -8,7 +8,7 @@ public class MCAtomicUpdater {
 
 	public static void AtomicIncr(MemcachedClient memcache, Integer by, String key, int times) throws Exception {
 		int curr = 0;
-		while (curr < times) {
+		while (true) {
 			CASValue casValue = memcache.gets(key);
 			if (casValue == null)
 				throw new Exception("key not existent");
