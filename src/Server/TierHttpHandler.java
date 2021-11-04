@@ -97,6 +97,7 @@ public abstract class TierHttpHandler implements Runnable {
 		if (!this.mgm.isThreadCpuTimeSupported()) {
 			System.err.println("ThreadCpuTime in not suppoted");
 		}
+		this.mgm.setThreadCpuTimeEnabled(true);
 		try {
 			if (this.req != null) {
 				this.handleResponse(this.req, this.handleGetRequest(this.req));
