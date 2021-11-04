@@ -66,7 +66,7 @@ public abstract class TierHttpHandler implements Runnable {
 	public abstract String getName();
 
 	public void doWorkCPU() {
-		double delay = dist.sample() * 1000000;
+		int delay = Long.valueOf(Math.round(dist.sample() * 1000000)).intValue();
 //		long start = this.mgm.getCurrentThreadCpuTime();
 //		while ((this.mgm.getCurrentThreadCpuTime() - start) < delay) {
 //		}
