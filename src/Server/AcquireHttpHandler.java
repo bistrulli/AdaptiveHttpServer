@@ -97,6 +97,9 @@ public class AcquireHttpHandler implements HttpHandler {
 			long stime = System.nanoTime();
 			if (params.get("stime") != null)
 				stime = Long.valueOf(params.get("stime"));
+			else
+				stime = System.nanoTime();
+			
 			this.task.getEnqueueTime().put(params.get("id"), stime);
 
 			// implemento fcfs usando la coda del threadpool.
