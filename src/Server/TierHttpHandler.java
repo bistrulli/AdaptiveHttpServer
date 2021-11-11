@@ -15,6 +15,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.sun.net.httpserver.HttpExchange;
 
+import memcachedPool.PooledMemcachedClient;
 import net.spy.memcached.MemcachedClient;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
@@ -31,7 +32,7 @@ public abstract class TierHttpHandler implements Runnable {
 	private String webPageTpl = null;
 	private String name = null;
 	// private Jedis jedis = null;
-	private MemcachedClient memcachedClient = null;
+	private PooledMemcachedClient memcachedClient = null;
 
 	public TierHttpHandler(SimpleTask lqntask, HttpExchange req, long stime) {
 		this.setLqntask(lqntask);
@@ -43,11 +44,7 @@ public abstract class TierHttpHandler implements Runnable {
 		// this.mgm = ManagementFactory.getThreadMXBean();
 
 		// this.jedis=lqntask.getJedisPool().getResource();
-		try {
-			this.memcachedClient = new MemcachedClient(new InetSocketAddress(this.lqntask.getJedisHost(), 11211));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		this.memcachedClient=this.lqntask.getMemcachedPool().getConnection();
 
 		try {
 			final ClassLoader loader = this.getClass().getClassLoader();
@@ -113,7 +110,7 @@ public abstract class TierHttpHandler implements Runnable {
 			e.printStackTrace();
 		} finally {
 			// this.getJedis().close();
-			this.memcachedClient.shutdown();
+			this.memcachedClient.close();
 		}
 	}
 
@@ -230,10 +227,6 @@ public abstract class TierHttpHandler implements Runnable {
 
 	public MemcachedClient getMemcachedClient() {
 		return memcachedClient;
-	}
-
-	public void setMemcachedClient(MemcachedClient memcachedClient) {
-		this.memcachedClient = memcachedClient;
 	}
 
 //	public Jedis getJedis() {

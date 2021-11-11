@@ -11,6 +11,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
+import memcachedPool.PooledMemcachedClient;
 import net.spy.memcached.MemcachedClient;
 
 public class AcquireHttpHandler implements HttpHandler {
@@ -19,17 +20,13 @@ public class AcquireHttpHandler implements HttpHandler {
 	HttpExchange req = null;
 	ArrayList<Runnable> backlog = null;
 	private ThreadLocalRandom rnd = null;
-	private MemcachedClient memcachedClient = null;
+	private PooledMemcachedClient memcachedClient = null;
 
 	public AcquireHttpHandler(SimpleTask task) {
 		this.task = task;
 		this.backlog = new ArrayList<Runnable>();
 		this.rnd = ThreadLocalRandom.current();
-		try {
-			this.memcachedClient = new MemcachedClient(new InetSocketAddress(this.task.getJedisHost(), 11211));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		this.memcachedClient=this.task.getMemcachedPool().getConnection();
 	}
 
 //	public void measure(String entry, String snd) {
@@ -108,6 +105,8 @@ public class AcquireHttpHandler implements HttpHandler {
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
+		}finally {
+			this.memcachedClient.close();
 		}
 	}
 

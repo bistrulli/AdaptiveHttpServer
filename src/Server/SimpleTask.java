@@ -9,7 +9,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +25,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
 import adaptationHandler.AdaptationHandler2;
+import memcachedPool.memcachedPool;
+import monitoring.rtSampler;
 
 @SuppressWarnings("restriction")
 public class SimpleTask {
@@ -45,6 +49,7 @@ public class SimpleTask {
 	private HashMap<String, Long> sTimes = null;
 	private HashMap<String, AtomicInteger> state = null;
 	// private JedisPool jedisPool;
+	private memcachedPool memcachedPool = null;
 	private boolean isGenerator = false;
 	private static Logger logger = LoggerFactory.getLogger(SimpleTask.class);
 
@@ -55,6 +60,7 @@ public class SimpleTask {
 	ConcurrentLinkedQueue<Integer> tids = null;
 
 	private HashMap<String, Long> enqueueTime = null;
+	rtSampler rts = null;
 
 	public SimpleTask(String address, int port, HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize,
 			boolean isEmulated, String name, String jedisHost, long aHperiod) {
@@ -64,6 +70,7 @@ public class SimpleTask {
 		this.entries = entries;
 		this.setEmulated(isEmulated);
 		this.jedisHost = jedisHost;
+		this.initMemcachedPool(jedisHost, 11211);
 		try {
 			this.server = HttpServer.create(new InetSocketAddress(port), this.backlogsize);
 			this.setPort(port);
@@ -81,6 +88,10 @@ public class SimpleTask {
 			this.adaptHandler = new AdaptationHandler2(this, this.jedisHost);
 		}
 		this.initState();
+
+		ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
+		this.rts = new rtSampler(this.jedisHost, this.getName());
+		se.scheduleAtFixedRate(rts, 0, 1, TimeUnit.SECONDS);
 	}
 
 	public SimpleTask(HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize, String name,
@@ -257,6 +268,10 @@ public class SimpleTask {
 //		this.initJedisPool(500, this.jedisHost);
 //	}
 
+	public void initMemcachedPool(String host, int port) {
+		this.memcachedPool = new memcachedPool(host, port);
+	}
+
 	public void initThreadPoolExecutor() {
 		this.threadpool = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE, 2, TimeUnit.NANOSECONDS,
 				new LinkedBlockingQueue<Runnable>());
@@ -342,4 +357,15 @@ public class SimpleTask {
 		this.state = state;
 	}
 
+	public rtSampler getRts() {
+		return rts;
+	}
+
+	public void setRts(rtSampler rts) {
+		this.rts = rts;
+	}
+
+	public memcachedPool getMemcachedPool() {
+		return memcachedPool;
+	}
 }
