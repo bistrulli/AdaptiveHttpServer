@@ -91,7 +91,7 @@ public class SimpleTask {
 
 		ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
 		this.rts = new rtSampler(this.jedisHost, this.getName());
-		se.scheduleAtFixedRate(rts, 0, 1, TimeUnit.SECONDS);
+		se.scheduleAtFixedRate(rts, 0, 100, TimeUnit.MILLISECONDS);
 	}
 
 	public SimpleTask(HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize, String name,

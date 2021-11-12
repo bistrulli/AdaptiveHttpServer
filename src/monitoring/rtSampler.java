@@ -36,7 +36,7 @@ public class rtSampler implements Runnable {
 		int nel=0;
 		
 		for(int i=samples.length-1; i>=0;i--) {
-			if(samples[samples.length-1].getEnd()-samples[i].getEnd()<=Math.pow(10, 9)) {
+			if(samples[samples.length-1].getEnd()-samples[i].getEnd()<=Math.pow(10, 10)) {
 				sum += samples[i].getRT();
 				nel+=1;
 			}else {
