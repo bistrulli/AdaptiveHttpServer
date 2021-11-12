@@ -2,26 +2,22 @@ package monitoring;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 import net.spy.memcached.MemcachedClient;
 
 public class rtSampler implements Runnable {
 
-	private ConcurrentLinkedQueue<Long> rt = null;
+	private ConcurrentLinkedQueue<rtSample> rt = null;
 	private MemcachedClient memcachedClient = null;
 	private String monirotHost = null;
-	private String name=null;
+	private String name = null;
 
-	public rtSampler(String monirotHost,String name) {
-		this.rt = new ConcurrentLinkedQueue<Long>();
+	public rtSampler(String monirotHost, String name) {
+		this.rt = new ConcurrentLinkedQueue<rtSample>();
 		this.monirotHost = monirotHost;
-		this.name=name;
+		this.name = name;
 		try {
 			this.memcachedClient = new MemcachedClient(new InetSocketAddress(this.monirotHost, 11211));
 		} catch (IOException e) {
@@ -31,18 +27,24 @@ public class rtSampler implements Runnable {
 
 	@Override
 	public void run() {
-		Long[] samples = this.rt.toArray(new Long[0]);
+		rtSample[] samples = this.rt.toArray(new rtSample[0]);
 		this.saveRT(samples);
-		this.rt.clear();
 	}
 
-	private void saveRT(Long[] samples) {
+	private void saveRT(rtSample[] samples) {
 		double sum = 0;
-		for (Long sample : samples) {
-			sum += sample;
+		int nel=0;
+		
+		for(int i=samples.length-1; i>=0;i--) {
+			if(samples[samples.length-1].getEnd()-samples[i].getEnd()<=Math.pow(10, 9)) {
+				sum += samples[i].getRT();
+				nel+=1;
+			}else {
+				this.rt.remove(samples[i]);
+			}
 		}
 		try {
-			this.memcachedClient.set("rt_"+this.name, 3600, String.valueOf(sum / samples.length)).get();
+			this.memcachedClient.set("rt_"+this.name, 3600, String.valueOf(sum / nel)).get();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (ExecutionException e) {
@@ -50,8 +52,8 @@ public class rtSampler implements Runnable {
 		}
 	}
 
-	public void addSample(long time) {
-		this.rt.add(time);
+	public void addSample(rtSample sample) {
+		this.rt.add(sample);
 	}
 
 }
