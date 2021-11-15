@@ -1,50 +1,43 @@
 package monitoring;
 
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.lang3.ArrayUtils;
-
-import redis.clients.jedis.Jedis;
-import us.hebi.matlab.mat.types.Matrix;
+import Server.SimpleTask;
+import net.spy.memcached.MemcachedClient;
 
 public class StateSampler implements Runnable {
 	
-	private Jedis j = null;
-	private String[] keys = null;
-	private int tick = -1;
-	private int limitTick=-1;
-	private CountDownLatch waitExp=null;
-	private Matrix q =null;
+	private MemcachedClient memClient = null;
+	private SimpleTask task=null;
 	
-	public StateSampler(String[] keys,int limitTick, Matrix q, CountDownLatch waitExp) {
-		this.j=new Jedis();
-		this.keys=keys;
-		this.tick=0;
-		this.limitTick=limitTick;
-		this.waitExp=waitExp;
-		this.q=q;
+	public StateSampler(String monitorHost,SimpleTask task) {
+		this.task=task;
+		try {
+			this.memClient=new MemcachedClient(new InetSocketAddress(monitorHost, 11211));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
-	private List<String> getState() {
-		return this.j.mget(this.keys);
+	private void sampleState() {
+		HashMap<String, AtomicInteger> state = this.task.getState();
+		for (String key: state.keySet()) {
+			AtomicInteger st=((AtomicInteger) state.get(key));
+			try {
+				this.memClient.set(key, 3600, String.valueOf(st.get())).get();
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override
 	public void run() {
-		if (this.tick < limitTick) {
-			List<String> state = this.getState();
-			for (int k = 0; k < state.size(); k++) {
-				if (state.get(k) == null) {
-					state.set(k, "-1");
-				}
-				this.q.setDouble(new int[] {this.tick, k}, Double.valueOf(state.get(k)));
-			}
-			//System.out.println(String.format("%.3f",Integer.valueOf(this.tick).floatValue()/Integer.valueOf(this.limitTick).floatValue()));
-			this.tick++;
-		} else {
-			this.waitExp.countDown();
-		}
+		this.sampleState();
 	}
 
 }

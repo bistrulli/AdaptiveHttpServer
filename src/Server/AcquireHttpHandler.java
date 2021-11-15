@@ -7,6 +7,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -20,46 +21,15 @@ public class AcquireHttpHandler implements HttpHandler {
 	HttpExchange req = null;
 	ArrayList<Runnable> backlog = null;
 	private ThreadLocalRandom rnd = null;
-	private PooledMemcachedClient memcachedClient = null;
 
 	public AcquireHttpHandler(SimpleTask task) {
 		this.task = task;
 		this.backlog = new ArrayList<Runnable>();
 		this.rnd = ThreadLocalRandom.current();
-		this.memcachedClient=this.task.getMemcachedPool().getConnection();
 	}
 
-//	public void measure(String entry, String snd) {
-//		
-//		Jedis jedis = this.getTask().getJedisPool().getResource();
-//		Transaction t = jedis.multi();
-//
-//		if (snd.equals("think"))
-//			t.decr("think");
-//		else
-//			t.decr(String.format("%s_ex", snd));
-//
-//		t.incr(String.format("%s_bl", entry));
-//		t.exec();
-//		t.close();
-//		jedis.close();
-//	}
-
 	public void measure(String entry, String snd) {
-		try {
-			if (snd.equals("think")) {
-				// this.memcachedClient.decr("think", 1);
-				MCAtomicUpdater.AtomicIncr(this.memcachedClient, -1, "think", 100);
-			} else {
-				// this.memcachedClient.decr(String.format("%s_ex", snd), 1);
-				MCAtomicUpdater.AtomicIncr(this.memcachedClient, -1, String.format("%s_ex", snd), 100);
-			}
-			// this.memcachedClient.incr(String.format("%s_bl", entry), 1);
-			MCAtomicUpdater.AtomicIncr(this.memcachedClient, 1, String.format("%s_bl", entry), 100);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		this.task.getState().get(String.format("%s_bl", entry)).incrementAndGet();
 	}
 
 	@Override
@@ -96,17 +66,24 @@ public class AcquireHttpHandler implements HttpHandler {
 				stime = Long.valueOf(params.get("stime"));
 			else
 				stime = System.nanoTime();
-			
-			this.task.getEnqueueTime().put(params.get("id"), stime);
 
+			this.task.getEnqueueTime().put(params.get("id"), stime);
+			
+			
+			while(this.task.getThreadpoolSize()<this.task.getThreadpool().getActiveCount()) {
+				try {
+					TimeUnit.MILLISECONDS.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+				
 			// implemento fcfs usando la coda del threadpool.
 			this.task.getThreadpool()
 					.submit(c.newInstance(this.getTask(), req, this.task.getsTimes().get(params.get("entry"))));
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
-		}finally {
-			this.memcachedClient.close();
 		}
 	}
 
