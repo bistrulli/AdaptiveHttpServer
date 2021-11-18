@@ -28,6 +28,8 @@ public class TCPServer extends Thread {
 
 			while (true) {
 				Socket socket = serverSocket.accept();
+				
+				System.out.println("Client received");
 
 				InputStream input = socket.getInputStream();
 				BufferedReader reader = new BufferedReader(new InputStreamReader(input));
