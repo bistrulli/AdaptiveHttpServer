@@ -63,7 +63,7 @@ public class SimpleTask {
 
 	private HashMap<String, Long> enqueueTime = null;
 	rtSampler rts = null;
-	UDPServer sts = null;
+	TCPServer sts = null;
 
 	public SimpleTask(String address, int port, HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize,
 			boolean isEmulated, String name, String jedisHost, Long aHperiod, Long rtSamplingPeriod,
@@ -75,7 +75,7 @@ public class SimpleTask {
 		this.setEmulated(isEmulated);
 		this.jedisHost = jedisHost;
 		this.initState();
-		this.sts = new UDPServer(port + 10000, this);
+		this.sts = new TCPServer(port + 10000, this);
 		this.sts.start();
 		try {
 			this.server = HttpServer.create(new InetSocketAddress(port), this.backlogsize);
@@ -115,7 +115,7 @@ public class SimpleTask {
 		this.threadpool.allowCoreThreadTimeOut(true);
 		this.jedisHost = jedisHost;
 		this.initState();
-		this.sts = new UDPServer(3333, this);
+		this.sts = new TCPServer(3333, this);
 		this.sts.start();
 	}
 
