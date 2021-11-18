@@ -1,7 +1,8 @@
 package Server;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.DataInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -32,9 +33,12 @@ public class TCPServer extends Thread {
 				System.out.println("Client received");
 
 				InputStream input = socket.getInputStream();
-				BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-				String msg = reader.readLine();
+				DataInputStream reader = new DataInputStream(new BufferedInputStream(input));
+				String msg =  reader.readUTF();
 				
+				if(msg==null) {
+					System.out.println("null message");
+				}
 				System.out.println(msg);
 
 				OutputStream output = socket.getOutputStream();
