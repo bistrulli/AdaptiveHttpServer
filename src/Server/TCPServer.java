@@ -34,6 +34,8 @@ public class TCPServer extends Thread {
 				InputStream input = socket.getInputStream();
 				BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 				String msg = reader.readLine();
+				
+				System.out.println(msg);
 
 				OutputStream output = socket.getOutputStream();
 				PrintWriter writer = new PrintWriter(output, true);
