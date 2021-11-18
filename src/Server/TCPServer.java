@@ -46,6 +46,8 @@ public class TCPServer extends Thread {
 						stTcp += key + ":" + state.get(key).get() + "$";
 					}
 					writer.println(stTcp);
+					writer.close();
+					System.out.println("Response sent");
 					break;
 				}
 				default:
@@ -54,7 +56,7 @@ public class TCPServer extends Thread {
 
 			}
 
-		} catch (IOException ex) {
+		} catch (Exception ex) {
 			System.out.println("Server exception: " + ex.getMessage());
 			ex.printStackTrace();
 		}
