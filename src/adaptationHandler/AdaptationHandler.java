@@ -23,8 +23,13 @@ public class AdaptationHandler implements Runnable {
 	@Override
 	public void run() {
 		try {
-			Integer swCore = Integer.valueOf(String.valueOf(memcachedClient.get(this.task.getName() + "_sw")));
-			Float hwCore = Float.valueOf(String.valueOf(memcachedClient.get(this.task.getName() + "_hw")));
+			Integer swCore =null;
+			Float hwCore = null;
+			Object core=null;
+			if((core=memcachedClient.get(this.task.getName() + "_sw"))!=null)
+				swCore = Integer.valueOf(String.valueOf(core));
+			if((core=memcachedClient.get(this.task.getName() + "_hw"))!=null)
+				hwCore = Float.valueOf(String.valueOf(core));
 			if (hwCore != null) {
 				int swcore = Math.max(1, Double.valueOf(Math.ceil(hwCore)).intValue());
 				try {

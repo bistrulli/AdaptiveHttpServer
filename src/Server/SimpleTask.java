@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -62,7 +63,7 @@ public class SimpleTask {
 
 	private HashMap<String, Long> enqueueTime = null;
 	rtSampler rts = null;
-	StateSampler sts = null;
+	UDPServer sts = null;
 
 	public SimpleTask(String address, int port, HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize,
 			boolean isEmulated, String name, String jedisHost, Long aHperiod, Long rtSamplingPeriod,
@@ -74,17 +75,13 @@ public class SimpleTask {
 		this.setEmulated(isEmulated);
 		this.jedisHost = jedisHost;
 		this.initState();
-		if (stSamplerPeriod != null) {
-			ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
-			this.sts = new StateSampler(this.jedisHost, this);
-			se.scheduleAtFixedRate(this.sts, 0, stSamplerPeriod, TimeUnit.MILLISECONDS);
-		}
+		this.sts = new UDPServer(port + 10000, this);
+		this.sts.start();
 		try {
 			this.server = HttpServer.create(new InetSocketAddress(port), this.backlogsize);
 			this.setPort(port);
 			this.server.createContext("/", new AcquireHttpHandler(this));
-			this.server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
-
+			this.server.setExecutor(java.util.concurrent.Executors.newFixedThreadPool(20));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -106,7 +103,7 @@ public class SimpleTask {
 	}
 
 	public SimpleTask(HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize, String name,
-			String jedisHost,Long stSamplerPeriod) {
+			String jedisHost, Long stSamplerPeriod) {
 		this.setEnqueueTime(new HashMap<String, Long>());
 		this.setName(name);
 		this.jedisHost = jedisHost;
@@ -118,11 +115,8 @@ public class SimpleTask {
 		this.threadpool.allowCoreThreadTimeOut(true);
 		this.jedisHost = jedisHost;
 		this.initState();
-		if (stSamplerPeriod != null) {
-			ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
-			this.sts = new StateSampler(this.jedisHost, this);
-			se.scheduleAtFixedRate(this.sts, 0, stSamplerPeriod, TimeUnit.MILLISECONDS);
-		}
+		this.sts = new UDPServer(3333, this);
+		this.sts.start();
 	}
 
 	public void setThreadPoolSize(int size) throws Exception {
@@ -130,7 +124,7 @@ public class SimpleTask {
 			throw new Exception("Threadpool size has to be >0");
 		}
 		if (size <= this.maxThreadSize) {
-			this.threadpoolSize=size;
+			this.threadpoolSize = size;
 			// this.threadpool.setMaximumPoolSize(size);
 			this.threadpool.setCorePoolSize(size);
 		} else {
@@ -284,10 +278,10 @@ public class SimpleTask {
 	}
 
 	public void initThreadPoolExecutor() {
-		this.threadpool = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE,1, TimeUnit.NANOSECONDS,
+		this.threadpool = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE, 1, TimeUnit.NANOSECONDS,
 				new LinkedBlockingQueue<Runnable>());
 		this.threadpool.allowCoreThreadTimeOut(true);
-		
+
 		if (!this.isGenerator)
 			this.server.setExecutor(null);
 	}
