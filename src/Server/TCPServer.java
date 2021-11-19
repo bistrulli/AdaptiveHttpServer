@@ -26,24 +26,17 @@ public class TCPServer extends Thread {
 		try (ServerSocket serverSocket = new ServerSocket(this.port)) {
 
 			System.out.println("Server is listening on port " + port);
+			Socket socket = serverSocket.accept();
+			System.out.println("Client received");
+			OutputStream output = socket.getOutputStream();
+			PrintWriter writer = new PrintWriter(output, true);
+			InputStream input = socket.getInputStream();
+			DataInputStream reader = new DataInputStream(new BufferedInputStream(input));
+			writer.println("connected");
 
 			while (true) {
-				Socket socket = serverSocket.accept();
-				
-				System.out.println("Client received");
-
-				InputStream input = socket.getInputStream();
-				DataInputStream reader = new DataInputStream(new BufferedInputStream(input));
-				String msg =  reader.readUTF();
-				
-				if(msg==null) {
-					System.out.println("null message");
-				}
+				String msg = reader.readUTF();
 				System.out.println(msg);
-
-				OutputStream output = socket.getOutputStream();
-				PrintWriter writer = new PrintWriter(output, true);
-
 				switch (msg) {
 				case "getState": {
 					HashMap<String, AtomicInteger> state = this.task.getState();
