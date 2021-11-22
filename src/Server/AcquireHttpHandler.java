@@ -3,7 +3,6 @@ package Server;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -11,9 +10,6 @@ import java.util.concurrent.TimeUnit;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-
-import memcachedPool.PooledMemcachedClient;
-import net.spy.memcached.MemcachedClient;
 
 public class AcquireHttpHandler implements HttpHandler {
 
@@ -36,21 +32,23 @@ public class AcquireHttpHandler implements HttpHandler {
 	public void handle(HttpExchange req) throws IOException {
 		SimpleTask.getLogger().debug(String.format("%s recieved", this.task.getName()));
 		Map<String, String> params = this.getTask().queryToMap(req.getRequestURI().getQuery());
-//		if (params.get("entry") == null || params.get("entry").equals("")) {
-//			SimpleTask.getLogger().error("Request with no specified entry");
-//		}
-//		if (params.get("snd") == null || params.get("snd").equals("")) {
-//			SimpleTask.getLogger().error("Request with no specified sender");
-//		}
+		if (params.get("entry") == null || params.get("entry").equals("")) {
+			SimpleTask.getLogger().error("Request with no specified entry");
+		}
+		if (params.get("snd") == null || params.get("snd").equals("")) {
+			SimpleTask.getLogger().error("Request with no specified sender");
+		}
 		this.measure(params.get("entry"), params.get("snd"));
 		try {
 			Constructor<? extends Runnable> c = null;
 			if (this.task.getEntries().get(params.get("entry")) == null) {
 				SimpleTask.getLogger().error(String.format("No class registered for entry %s", params.get("entry")));
+				throw new IllegalArgumentException(String.format("No class registered for entry %s", params.get("entry")));
 			}
 			if (this.task.getsTimes().get(params.get("entry")) == null) {
 				SimpleTask.getLogger()
 						.error(String.format("No service time registered for entry %s", params.get("entry")));
+				throw new IllegalArgumentException(String.format("No service time registered for entry %s", params.get("entry")));
 			}
 			// System.out.println(this.task.getEntries().get(params.get("entry")));
 			c = this.task.getEntries().get(params.get("entry")).getDeclaredConstructor(SimpleTask.class,
