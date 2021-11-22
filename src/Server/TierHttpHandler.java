@@ -1,6 +1,7 @@
 package Server;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -106,8 +107,11 @@ public abstract class TierHttpHandler implements Runnable {
 	public synchronized void addToCGV2Group(String gname) {
 		try {
 			tid = GetThreadID.get_tid();
-			FileWriter fw = new FileWriter("/sys/fs/cgroup/" + gname + "/cgroup.threads");
-			fw.append(String.valueOf(tid));
+			BufferedWriter writer = new BufferedWriter(new FileWriter("/sys/fs/cgroup/" + gname + "/cgroup.threads"));
+		    System.out.println("thread with id:"+tid);
+			writer.write(String.valueOf(tid)+"\n");
+		    writer.flush();
+		    writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
