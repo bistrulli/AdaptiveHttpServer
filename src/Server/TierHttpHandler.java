@@ -107,7 +107,7 @@ public abstract class TierHttpHandler implements Runnable {
 	public synchronized void addToCGV2Group(String gname) {
 		try {
 			tid = GetThreadID.get_tid();
-			this.processBuilder.command(new String[]{"echo +tid+ >  /sys/fs/cgroup/"+ gname + "cgroup.threads"});
+			this.processBuilder.command(new String[]{"echo +tid+ >  /sys/fs/cgroup/"+ gname + "/cgroup.threads"});
 			Process process = this.processBuilder.start();
 			process.waitFor();
 //			BufferedWriter writer = new BufferedWriter(new FileWriter("/sys/fs/cgroup/" + gname + "/cgroup.threads"));
