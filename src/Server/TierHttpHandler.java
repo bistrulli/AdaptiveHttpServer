@@ -108,9 +108,18 @@ public abstract class TierHttpHandler implements Runnable {
 		try {
 			int tid = GetThreadID.get_tid();
 			System.out.println(tid);
-//			this.processBuilder.command(new String[]{"echo",""+tid, ">","/sys/fs/cgroup/"+ gname + "/cgroup.threads"});
-//			Process process = this.processBuilder.start();
-//			process.waitFor();
+			this.processBuilder.command(new String[]{"echo",""+tid, ">","/sys/fs/cgroup/"+ gname + "/cgroup.threads"});
+			Process process = this.processBuilder.start();
+			
+			StringBuilder output = new StringBuilder();
+			BufferedReader reader = new BufferedReader(
+					new InputStreamReader(process.getInputStream()));
+			String line;
+			while ((line = reader.readLine()) != null) {
+				output.append(line + "\n");
+			}
+			System.out.println();
+			process.waitFor();
 //			BufferedWriter writer = new BufferedWriter(new FileWriter("/sys/fs/cgroup/" + gname + "/cgroup.threads"));
 //		    System.out.println("thread with id:"+tid);
 //			writer.write(String.valueOf(tid)+"\n");
