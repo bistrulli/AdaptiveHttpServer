@@ -108,7 +108,7 @@ public abstract class TierHttpHandler implements Runnable {
 			tid = GetThreadID.get_tid();
 			FileWriter fw = new FileWriter("/sys/fs/cgroup/" + gname + "/cgroup.threads");
 			fw.append(String.valueOf(tid));
-			fw.close();
+			fw.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
