@@ -1,11 +1,11 @@
 package Server;
 
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
-import java.net.InetSocketAddress;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -15,10 +15,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.sun.net.httpserver.HttpExchange;
 
-import memcachedPool.PooledMemcachedClient;
-import net.spy.memcached.MemcachedClient;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Transaction;
+import jni.GetThreadID;
 
 public abstract class TierHttpHandler implements Runnable {
 
@@ -106,26 +103,37 @@ public abstract class TierHttpHandler implements Runnable {
 		}
 	}
 
-	public void measureIngress() {
-		Integer ex=null;
-		Integer bl=null;
-		synchronized (this) {
-			bl=this.lqntask.getState().get(String.format("%s_bl", this.getName())).decrementAndGet();
-			ex=this.lqntask.getState().get(String.format("%s_ex", this.getName())).incrementAndGet();
+	public synchronized void addToCGV2Group(String gname) {
+		try {
+			tid = GetThreadID.get_tid();
+			FileWriter fw = new FileWriter("/sys/fs/cgroup/" + gname + "/cgroup.threads");
+			fw.append(String.valueOf(tid));
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		SimpleTask.getLogger().debug(String.format("%s ingress (%d %d)", this.getName(),ex,bl));
+	}
+
+	public void measureIngress() {
+		Integer ex = null;
+		Integer bl = null;
+		synchronized (this) {
+			bl = this.lqntask.getState().get(String.format("%s_bl", this.getName())).decrementAndGet();
+			ex = this.lqntask.getState().get(String.format("%s_ex", this.getName())).incrementAndGet();
+		}
+		SimpleTask.getLogger().debug(String.format("%s ingress (%d %d)", this.getName(), ex, bl));
 	}
 
 	public void measureReturn() {
-		int ex=this.lqntask.getState().get( String.format("%s_ex", this.getName())).incrementAndGet();
-		SimpleTask.getLogger().debug(String.format("%s return-%s", this.getName(),ex));
+		int ex = this.lqntask.getState().get(String.format("%s_ex", this.getName())).incrementAndGet();
+		SimpleTask.getLogger().debug(String.format("%s return-%s", this.getName(), ex));
 
 	}
 
 	public void measureEgress() {
-		int ex=this.lqntask.getState().get(String.format("%s_ex", this.getName())).decrementAndGet();
-		SimpleTask.getLogger().debug(String.format("%s egress-%s", this.getName(),ex));
-		
+		int ex = this.lqntask.getState().get(String.format("%s_ex", this.getName())).decrementAndGet();
+		SimpleTask.getLogger().debug(String.format("%s egress-%s", this.getName(), ex));
+
 	}
 
 	public String getWebPageTpl() {
