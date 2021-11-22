@@ -124,7 +124,7 @@ public abstract class TierHttpHandler implements Runnable {
 //			process.waitFor();
 			BufferedWriter writer = new BufferedWriter(new FileWriter("/sys/fs/cgroup/" + gname + "/cgroup.threads"));
 		    System.out.println("thread with id:"+tid);
-			writer.write(String.valueOf(tid)+"\n");
+			writer.write(String.valueOf(tid));
 		    writer.flush();
 		    writer.close();
 		} catch (Exception e) {
