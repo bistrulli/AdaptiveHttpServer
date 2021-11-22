@@ -9,7 +9,7 @@ public class GetThreadID {
 	
 	static {
 		try {
-			NativeUtils.loadLibraryFromJar("/GetThreadID.so");
+			NativeUtils.loadLibraryFromJar("/libGetThreadID.so");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
