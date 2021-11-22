@@ -36,12 +36,12 @@ public class AcquireHttpHandler implements HttpHandler {
 	public void handle(HttpExchange req) throws IOException {
 		SimpleTask.getLogger().debug(String.format("%s recieved", this.task.getName()));
 		Map<String, String> params = this.getTask().queryToMap(req.getRequestURI().getQuery());
-		if (params.get("entry") == null || params.get("entry").equals("")) {
-			SimpleTask.getLogger().error("Request with no specified entry");
-		}
-		if (params.get("snd") == null || params.get("snd").equals("")) {
-			SimpleTask.getLogger().error("Request with no specified sender");
-		}
+//		if (params.get("entry") == null || params.get("entry").equals("")) {
+//			SimpleTask.getLogger().error("Request with no specified entry");
+//		}
+//		if (params.get("snd") == null || params.get("snd").equals("")) {
+//			SimpleTask.getLogger().error("Request with no specified sender");
+//		}
 		this.measure(params.get("entry"), params.get("snd"));
 		try {
 			Constructor<? extends Runnable> c = null;
