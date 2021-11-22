@@ -1,8 +1,6 @@
 package Server;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
@@ -29,6 +27,7 @@ public abstract class TierHttpHandler implements Runnable {
 	private Integer tid = null;
 	private String webPageTpl = null;
 	private String name = null;
+	ProcessBuilder processBuilder = =null;
 
 	public TierHttpHandler(SimpleTask lqntask, HttpExchange req, long stime) {
 		this.setLqntask(lqntask);
@@ -46,6 +45,7 @@ public abstract class TierHttpHandler implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		this.processBuilder=new ProcessBuilder();
 	}
 
 	public abstract void handleResponse(HttpExchange req, String requestParamValue)
@@ -107,12 +107,15 @@ public abstract class TierHttpHandler implements Runnable {
 	public synchronized void addToCGV2Group(String gname) {
 		try {
 			tid = GetThreadID.get_tid();
-			BufferedWriter writer = new BufferedWriter(new FileWriter("/sys/fs/cgroup/" + gname + "/cgroup.threads"));
-		    System.out.println("thread with id:"+tid);
-			writer.write(String.valueOf(tid)+"\n");
-		    writer.flush();
-		    writer.close();
-		} catch (IOException e) {
+			this.processBuilder.command(new String[]{"echo +tid+ >  /sys/fs/cgroup/"+ gname + "cgroup.threads"});
+			Process process = this.processBuilder.start();
+			process.waitFor();
+//			BufferedWriter writer = new BufferedWriter(new FileWriter("/sys/fs/cgroup/" + gname + "/cgroup.threads"));
+//		    System.out.println("thread with id:"+tid);
+//			writer.write(String.valueOf(tid)+"\n");
+//		    writer.flush();
+//		    writer.close();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
