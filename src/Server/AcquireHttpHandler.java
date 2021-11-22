@@ -72,7 +72,7 @@ public class AcquireHttpHandler implements HttpHandler {
 			
 			while(this.task.getThreadpoolSize()<this.task.getThreadpool().getActiveCount()) {
 				try {
-					TimeUnit.MILLISECONDS.sleep(1);
+					TimeUnit.MILLISECONDS.sleep(10);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

@@ -23,20 +23,21 @@ public class TCPServer extends Thread {
 	}
 
 	public void run() {
+		PrintWriter writer = null;
 		try (ServerSocket serverSocket = new ServerSocket(this.port)) {
 
-			System.out.println("Server is listening on port " + port);
 			Socket socket = serverSocket.accept();
-			System.out.println("Client received");
+
 			OutputStream output = socket.getOutputStream();
-			PrintWriter writer = new PrintWriter(output, true);
-			InputStream input = socket.getInputStream();
-			DataInputStream reader = new DataInputStream(new BufferedInputStream(input));
+			writer = new PrintWriter(output, true);
+			DataInputStream reader = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+
 			writer.println("connected");
 
 			while (true) {
-				String msg = reader.readUTF();
-				System.out.println(msg);
+				String msg = null;
+				while ((msg = reader.readLine()) == null) {
+				}
 				switch (msg) {
 				case "getState": {
 					HashMap<String, AtomicInteger> state = this.task.getState();
@@ -45,8 +46,6 @@ public class TCPServer extends Thread {
 						stTcp += key + ":" + state.get(key).get() + "$";
 					}
 					writer.println(stTcp);
-					writer.close();
-					System.out.println("Response sent");
 					break;
 				}
 				default:
@@ -58,6 +57,8 @@ public class TCPServer extends Thread {
 		} catch (Exception ex) {
 			System.out.println("Server exception: " + ex.getMessage());
 			ex.printStackTrace();
+		} finally {
+			writer.close();
 		}
 	}
 }
