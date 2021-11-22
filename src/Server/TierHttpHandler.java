@@ -1,6 +1,8 @@
 package Server;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
@@ -107,24 +109,24 @@ public abstract class TierHttpHandler implements Runnable {
 	public synchronized void addToCGV2Group(String gname) {
 		try {
 			int tid = GetThreadID.get_tid();
-			System.out.println(tid);
-			this.processBuilder.command(new String[]{"echo",""+tid, ">","/sys/fs/cgroup/"+ gname + "/cgroup.threads"});
-			Process process = this.processBuilder.start();
-			
-			StringBuilder output = new StringBuilder();
-			BufferedReader reader = new BufferedReader(
-					new InputStreamReader(process.getInputStream()));
-			String line;
-			while ((line = reader.readLine()) != null) {
-				output.append(line + "\n");
-			}
-			System.out.println();
-			process.waitFor();
-//			BufferedWriter writer = new BufferedWriter(new FileWriter("/sys/fs/cgroup/" + gname + "/cgroup.threads"));
-//		    System.out.println("thread with id:"+tid);
-//			writer.write(String.valueOf(tid)+"\n");
-//		    writer.flush();
-//		    writer.close();
+//			System.out.println("echo "+tid+" > /sys/fs/cgroup/"+ gname + "/cgroup.threads");
+//			this.processBuilder.command(new String[]{"echo",""+tid, ">","/sys/fs/cgroup/"+ gname + "/cgroup.threads"});
+//			Process process = this.processBuilder.start();
+//			
+//			StringBuilder output = new StringBuilder();
+//			BufferedReader reader = new BufferedReader(
+//					new InputStreamReader(process.getInputStream()));
+//			String line;
+//			while ((line = reader.readLine()) != null) {
+//				output.append(line + "\n");
+//			}
+//			System.out.println();
+//			process.waitFor();
+			BufferedWriter writer = new BufferedWriter(new FileWriter("/sys/fs/cgroup/" + gname + "/cgroup.threads"));
+		    System.out.println("thread with id:"+tid);
+			writer.write(String.valueOf(tid)+"\n");
+		    writer.flush();
+		    writer.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
