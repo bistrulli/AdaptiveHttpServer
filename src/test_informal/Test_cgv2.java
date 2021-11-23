@@ -40,6 +40,7 @@ public class Test_cgv2 {
 		int tick=0;
 		try {
 			while (tick<100) {
+				tick+=1;
 				TimeUnit.MILLISECONDS.sleep(500);
 				System.out.println(String.format("tSched=%d, tSrv=%d",s.nrq.floatValue()/(0.5*tick),s1.nrq.floatValue()/(0.5*tick)));
 			}
