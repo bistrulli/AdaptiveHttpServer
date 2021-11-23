@@ -29,8 +29,8 @@ public class Test_cgv2 {
 			e.printStackTrace();
 		}
 		
-		int nSched=3;
-		int nSrv=3;
+		int nSched=10;
+		int nSrv=10;
 
 		// creo il threadpool di serventi
 		ExecutorService sched = java.util.concurrent.Executors.newFixedThreadPool(nSched);
