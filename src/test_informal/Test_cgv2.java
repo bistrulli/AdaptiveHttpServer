@@ -33,9 +33,11 @@ public class Test_cgv2 {
 		sched.submit(new Runnable() {
 			@Override
 			public void run() {
+				int tid=GetThreadID.get_tid();
+				System.out.println("PID dello scheduler:" + tid);
 				while (true) {
 					try {
-						TimeUnit.MILLISECONDS.sleep(100);
+						TimeUnit.MILLISECONDS.sleep(1000);
 						System.out.println("Sched alive");
 					} catch (InterruptedException e) {
 						e.printStackTrace();
@@ -48,9 +50,11 @@ public class Test_cgv2 {
 		serv.submit(new Runnable() {
 			@Override
 			public void run() {
+				int tid=GetThreadID.get_tid();
+				System.out.println("PID dell servente:" + tid);
 				while (true) {
 					try {
-						TimeUnit.MILLISECONDS.sleep(100);
+						TimeUnit.MILLISECONDS.sleep(1000);
 						System.out.println("Srv alive");
 					} catch (InterruptedException e) {
 						e.printStackTrace();
