@@ -109,24 +109,16 @@ public abstract class TierHttpHandler implements Runnable {
 	public synchronized void addToCGV2Group(String gname) {
 		try {
 			int tid = GetThreadID.get_tid();
-//			System.out.println("echo "+tid+" > /sys/fs/cgroup/"+ gname + "/cgroup.threads");
-//			this.processBuilder.command(new String[]{"echo",""+tid, ">","/sys/fs/cgroup/"+ gname + "/cgroup.threads"});
-//			Process process = this.processBuilder.start();
-//			
-//			StringBuilder output = new StringBuilder();
-//			BufferedReader reader = new BufferedReader(
-//					new InputStreamReader(process.getInputStream()));
-//			String line;
-//			while ((line = reader.readLine()) != null) {
-//				output.append(line + "\n");
-//			}
-//			System.out.println();
-//			process.waitFor();
-			BufferedWriter writer = new BufferedWriter(new FileWriter("/sys/fs/cgroup/" + gname + "/cgroup.threads"));
-		    System.out.println("thread with id:"+tid);
-			writer.write(String.valueOf(tid));
-		    writer.flush();
-		    writer.close();
+			// aggiungo questo thread al gruppo dei serventi del tier
+			BufferedWriter out;
+			try {
+				out = new BufferedWriter(new FileWriter("/sys/fs/cgroup/"+this.getLqntask().getName()+"/"+gname+"/cgroup.threads", true));
+				out.write(String.valueOf(tid));
+				out.flush();
+				out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
