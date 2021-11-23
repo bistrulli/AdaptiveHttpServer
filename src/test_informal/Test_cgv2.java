@@ -35,10 +35,19 @@ public class Test_cgv2 {
 			public void run() {
 				int tid=GetThreadID.get_tid();
 				System.out.println("PID dello scheduler:" + tid);
+				// aggiungo questo thread gruppo dello scheduler
+				BufferedWriter out;
+				try {
+					out = new BufferedWriter(new FileWriter("/sys/fs/cgroup/tier1/sched/cgroup.threads", true));
+					out.write(String.valueOf(tid));
+					out.flush();
+					out.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 				while (true) {
 					try {
 						TimeUnit.MILLISECONDS.sleep(1000);
-						System.out.println("Sched alive");
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -52,10 +61,19 @@ public class Test_cgv2 {
 			public void run() {
 				int tid=GetThreadID.get_tid();
 				System.out.println("PID dell servente:" + tid);
+				// aggiungo questo thread gruppo dei serventi
+				BufferedWriter out;
+				try {
+					out = new BufferedWriter(new FileWriter("/sys/fs/cgroup/tier1/srv/cgroup.threads", true));
+					out.write(String.valueOf(tid));
+					out.flush();
+					out.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 				while (true) {
 					try {
 						TimeUnit.MILLISECONDS.sleep(1000);
-						System.out.println("Srv alive");
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
