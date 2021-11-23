@@ -38,7 +38,7 @@ public class Sched implements Runnable {
 			e.printStackTrace();
 		}
 		while (true) {
-			this.doWorkCPU(0.1d, this.mgm);
+			this.doWorkCPU(100d, this.mgm);
 			this.nrq += 1;
 		}
 	}

@@ -41,7 +41,8 @@ public class Srv implements Runnable {
 		while (true) {
 			ThreadMXBean mgm = ManagementFactory.getThreadMXBean();
 			while (true) {
-				this.doWorkCPU(0.1d, this.mgm);
+				this.doWorkCPU(100d, this.mgm);
+				this.nrq+=1;
 			}
 		}
 	}
