@@ -29,7 +29,7 @@
 							<archive>
 								<manifest>
 									<mainClass>
-										app.three_tier_app
+										test_informal.Test_cgv2
 									</mainClass>
 								</manifest>
 							</archive>
