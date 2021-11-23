@@ -42,7 +42,7 @@ public class Test_cgv2 {
 			while (tick<100) {
 				tick+=1;
 				TimeUnit.MILLISECONDS.sleep(500);
-				System.out.println(String.format("tSched=%d, tSrv=%d",s.nrq.floatValue()/(0.5*tick),s1.nrq.floatValue()/(0.5*tick)));
+				System.out.println(String.format("tSched=%.3f, tSrv=%.3f",s.nrq.floatValue()/(0.5*tick),s1.nrq.floatValue()/(0.5*tick)));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
