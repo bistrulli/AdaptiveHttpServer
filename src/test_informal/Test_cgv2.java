@@ -3,13 +3,14 @@ package test_informal;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import jni.GetThreadID;
 
 public class Test_cgv2 {
-
 
 	public static void main(String[] args) {
 		int tid = GetThreadID.get_tid();
@@ -24,69 +25,27 @@ public class Test_cgv2 {
 			out.flush();
 			out.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		// creo il threadpool di serventi
 		ExecutorService sched = java.util.concurrent.Executors.newFixedThreadPool(1);
-		sched.submit(new Runnable() {
-			@Override
-			public void run() {
-				int tid=GetThreadID.get_tid();
-				System.out.println("PID dello scheduler:" + tid);
-				// aggiungo questo thread gruppo dello scheduler
-				BufferedWriter out;
-				try {
-					out = new BufferedWriter(new FileWriter("/sys/fs/cgroup/tier1/sched/cgroup.threads", true));
-					out.write(String.valueOf(tid));
-					out.flush();
-					out.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				while (true) {
-					try {
-						TimeUnit.MILLISECONDS.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		});
+		Sched s = new Sched();
+		sched.submit(s);
 		// creo il threadpool dello scheduler
 		ExecutorService serv = java.util.concurrent.Executors.newFixedThreadPool(1);
-		serv.submit(new Runnable() {
-			@Override
-			public void run() {
-				int tid=GetThreadID.get_tid();
-				System.out.println("PID dell servente:" + tid);
-				// aggiungo questo thread gruppo dei serventi
-				BufferedWriter out;
-				try {
-					out = new BufferedWriter(new FileWriter("/sys/fs/cgroup/tier1/srv/cgroup.threads", true));
-					out.write(String.valueOf(tid));
-					out.flush();
-					out.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				while (true) {
-					try {
-						TimeUnit.MILLISECONDS.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		});
-		// ogni servente si aggiunge al gruppo srv
-		// ogni scheduler si aggiunge al gruppo sched
+		Srv s1 = new Srv();
+		serv.submit(s1);
+		
+		int tick=0;
 		try {
-			TimeUnit.SECONDS.sleep(120);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+			while (tick<100) {
+				TimeUnit.MILLISECONDS.sleep(500);
+				System.out.println(String.format("tSched=%d, tSrv=%d",s.nrq.floatValue()/(0.5*tick),s1.nrq.floatValue()/(0.5*tick)));
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 	}
 }
