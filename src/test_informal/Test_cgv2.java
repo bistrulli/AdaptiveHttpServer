@@ -33,13 +33,13 @@ public class Test_cgv2 {
 		int nSrv=3;
 
 		// creo il threadpool di serventi
-		ExecutorService sched = java.util.concurrent.Executors.newFixedThreadPool(1);
+		ExecutorService sched = java.util.concurrent.Executors.newFixedThreadPool(nSched);
 		for (int i = 0; i < nSched; i++) {
 			sched.submit(new Sched());
 		}
 		
 		// creo il threadpool dello scheduler
-		ExecutorService serv = java.util.concurrent.Executors.newFixedThreadPool(1);
+		ExecutorService serv = java.util.concurrent.Executors.newFixedThreadPool(nSrv);
 		for (int i = 0; i < nSrv; i++) {
 			serv.submit(new Srv());
 		}
