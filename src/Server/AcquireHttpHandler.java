@@ -67,14 +67,14 @@ public class AcquireHttpHandler implements HttpHandler {
 
 			this.task.getEnqueueTime().put(params.get("id"), stime);
 			
-			
-			while(this.task.getThreadpoolSize()<this.task.getThreadpool().getActiveCount()) {
-				try {
-					TimeUnit.MICROSECONDS.sleep(1);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+//			
+//			while(this.task.getThreadpoolSize()<this.task.getThreadpool().getActiveCount()) {
+//				try {
+//					TimeUnit.MICROSECONDS.sleep(1);
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+//			}
 				
 			// implemento fcfs usando la coda del threadpool.
 			this.task.getThreadpool()
