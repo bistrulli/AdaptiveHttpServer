@@ -5,15 +5,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import jni.GetThreadID;
 
 public class Srv implements Runnable {
-	public Integer nrq = 0;
+	public static AtomicInteger nrq = new AtomicInteger(0);
 	public ThreadMXBean mgm = null;
 
 	public Srv() {
-		this.nrq = 0;
 		this.mgm = ManagementFactory.getThreadMXBean();
 	}
 
@@ -42,7 +42,7 @@ public class Srv implements Runnable {
 			ThreadMXBean mgm = ManagementFactory.getThreadMXBean();
 			while (true) {
 				this.doWorkCPU(100d, this.mgm);
-				this.nrq+=1;
+				Srv.nrq.incrementAndGet();
 			}
 		}
 	}

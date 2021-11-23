@@ -5,15 +5,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
+import java.util.concurrent.atomic.AtomicInteger; 
 
 import jni.GetThreadID;
 
 public class Sched implements Runnable {
-	public Integer nrq = null;
+	public static AtomicInteger nrq = new AtomicInteger(0);
 	public ThreadMXBean mgm = null;
 
 	public Sched() {
-		this.nrq = 0;
 		this.mgm = ManagementFactory.getThreadMXBean();
 	}
 	
@@ -39,7 +39,7 @@ public class Sched implements Runnable {
 		}
 		while (true) {
 			this.doWorkCPU(100d, this.mgm);
-			this.nrq += 1;
+			Sched.nrq.incrementAndGet();
 		}
 	}
 }
