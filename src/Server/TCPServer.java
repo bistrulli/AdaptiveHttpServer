@@ -24,41 +24,43 @@ public class TCPServer extends Thread {
 
 	public void run() {
 		PrintWriter writer = null;
-		try (ServerSocket serverSocket = new ServerSocket(this.port)) {
+		while (true) {
+			try (ServerSocket serverSocket = new ServerSocket(this.port)) {
 
-			Socket socket = serverSocket.accept();
+				Socket socket = serverSocket.accept();
 
-			OutputStream output = socket.getOutputStream();
-			writer = new PrintWriter(output, true);
-			DataInputStream reader = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+				OutputStream output = socket.getOutputStream();
+				writer = new PrintWriter(output, true);
+				DataInputStream reader = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 
-			writer.println("connected");
+				writer.println("connected");
 
-			while (true) {
-				String msg = null;
-				while ((msg = reader.readLine()) == null) {
-				}
-				switch (msg) {
-				case "getState": {
-					HashMap<String, AtomicInteger> state = this.task.getState();
-					String stTcp = "";
-					for (String key : state.keySet()) {
-						stTcp += key + ":" + state.get(key).get() + "$";
+				while (true) {
+					String msg = null;
+					while ((msg = reader.readLine()) == null) {
 					}
-					writer.println(stTcp);
-					break;
-				}
-				default:
-					throw new IllegalArgumentException("Unexpected command: " + msg);
+					switch (msg) {
+					case "getState": {
+						HashMap<String, AtomicInteger> state = this.task.getState();
+						String stTcp = "";
+						for (String key : state.keySet()) {
+							stTcp += key + ":" + state.get(key).get() + "$";
+						}
+						writer.println(stTcp);
+						break;
+					}
+					default:
+						throw new IllegalArgumentException("Unexpected command: " + msg);
+					}
+
 				}
 
+			} catch (Exception ex) {
+				System.out.println("Server exception: " + ex.getMessage());
+				ex.printStackTrace();
+			} finally {
+				writer.close();
 			}
-
-		} catch (Exception ex) {
-			System.out.println("Server exception: " + ex.getMessage());
-			ex.printStackTrace();
-		} finally {
-			writer.close();
 		}
 	}
 }
