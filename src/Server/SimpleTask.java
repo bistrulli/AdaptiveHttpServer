@@ -126,6 +126,9 @@ public class SimpleTask {
 		this.initState();
 		this.sts = new TCPServer(3333, this);
 		this.sts.start();
+		ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
+		StateSampler client_sampler = new StateSampler(jedisHost, this);
+		se.scheduleAtFixedRate(client_sampler, 0, stSamplerPeriod, TimeUnit.MILLISECONDS);
 	}
 
 	public void setThreadPoolSize(int size) throws Exception {
