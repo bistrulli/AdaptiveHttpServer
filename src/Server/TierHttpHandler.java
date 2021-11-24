@@ -29,7 +29,7 @@ public abstract class TierHttpHandler implements Runnable {
 	private Integer tid = null;
 	private String webPageTpl = null;
 	private String name = null;
-	ProcessBuilder processBuilder =null;
+	ProcessBuilder processBuilder = null;
 
 	public TierHttpHandler(SimpleTask lqntask, HttpExchange req, long stime) {
 		this.setLqntask(lqntask);
@@ -47,7 +47,7 @@ public abstract class TierHttpHandler implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		this.processBuilder=new ProcessBuilder();
+		this.processBuilder = new ProcessBuilder();
 	}
 
 	public abstract void handleResponse(HttpExchange req, String requestParamValue)
@@ -107,20 +107,23 @@ public abstract class TierHttpHandler implements Runnable {
 	}
 
 	public synchronized void addToCGV2Group(String gname) {
-		try {
-			int tid = GetThreadID.get_tid();
-			// aggiungo questo thread al gruppo dei serventi del tier
-			BufferedWriter out;
+		if (this.lqntask.getIsCgv2()) {
 			try {
-				out = new BufferedWriter(new FileWriter("/sys/fs/cgroup/"+this.getLqntask().getName()+"/"+gname+"/cgroup.threads", true));
-				out.write(String.valueOf(tid));
-				out.flush();
-				out.close();
-			} catch (IOException e) {
+				int tid = GetThreadID.get_tid();
+				// aggiungo questo thread al gruppo dei serventi del tier
+				BufferedWriter out;
+				try {
+					out = new BufferedWriter(new FileWriter(
+							"/sys/fs/cgroup/" + this.getLqntask().getName() + "/" + gname + "/cgroup.threads", true));
+					out.write(String.valueOf(tid));
+					out.flush();
+					out.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
