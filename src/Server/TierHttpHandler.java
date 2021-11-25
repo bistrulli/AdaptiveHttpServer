@@ -62,7 +62,7 @@ public abstract class TierHttpHandler implements Runnable {
 //		long start = this.mgm.getCurrentThreadCpuTime();
 //		while ((this.mgm.getCurrentThreadCpuTime() - start) < delay) {
 //		}
-		long delay = 10000000+this.rnd.nextInt(10000);
+		long delay = 10000000;
 		int k = 0;
 		while (k < delay) {
 			k++;
