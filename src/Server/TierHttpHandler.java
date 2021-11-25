@@ -106,7 +106,7 @@ public abstract class TierHttpHandler implements Runnable {
 		}
 	}
 
-	public synchronized void addToCGV2Group(String gname) {
+	public void addToCGV2Group(String gname) {
 		if (this.lqntask.getIsCgv2()) {
 			try {
 				int tid = GetThreadID.get_tid();
