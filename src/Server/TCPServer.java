@@ -24,7 +24,7 @@ public class TCPServer extends Thread {
 
 	public void run() {
 		PrintWriter writer = null;
-		while (true) {
+		newClient: while (true) {
 			try (ServerSocket serverSocket = new ServerSocket(this.port)) {
 
 				Socket socket = serverSocket.accept();
@@ -35,7 +35,7 @@ public class TCPServer extends Thread {
 
 				writer.println("connected");
 
-				while (true) {
+				readInput: while (true) {
 					String msg = null;
 					while ((msg = reader.readLine()) == null) {
 					}
@@ -51,22 +51,19 @@ public class TCPServer extends Thread {
 					}
 					case "q": {
 						reader.close();
-						output.close(); 
+						output.close();
 						writer.close();
 						socket.close();
-						break;
+						break readInput;
 					}
 					default:
 						throw new IllegalArgumentException("Unexpected command: " + msg);
 					}
-
 				}
 
 			} catch (Exception ex) {
 				System.out.println("Server exception: " + ex.getMessage());
 				ex.printStackTrace();
-			} finally {
-				writer.close();
 			}
 		}
 	}
