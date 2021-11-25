@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
-import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -26,7 +25,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
 import adaptationHandler.AdaptationHandler;
-import memcachedPool.memcachedPool;
 import monitoring.StateSampler;
 import monitoring.rtSampler;
 
@@ -51,7 +49,6 @@ public class SimpleTask {
 	private HashMap<String, Long> sTimes = null;
 	private HashMap<String, AtomicInteger> state = null;
 	// private JedisPool jedisPool;
-	private memcachedPool memcachedPool = null;
 	private boolean isGenerator = false;
 	private static Logger logger = LoggerFactory.getLogger(SimpleTask.class);
 
@@ -285,10 +282,6 @@ public class SimpleTask {
 //		this.initJedisPool(500, this.jedisHost);
 //	}
 
-	public void initMemcachedPool(String host, int port) {
-		this.memcachedPool = new memcachedPool(host, port);
-	}
-
 	public void initThreadPoolExecutor() {
 		this.threadpool = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE, 1, TimeUnit.NANOSECONDS,
 				new LinkedBlockingQueue<Runnable>());
@@ -385,10 +378,6 @@ public class SimpleTask {
 
 	public void setRts(rtSampler rts) {
 		this.rts = rts;
-	}
-
-	public memcachedPool getMemcachedPool() {
-		return memcachedPool;
 	}
 
 	public Boolean getIsCgv2() {
