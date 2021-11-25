@@ -62,7 +62,7 @@ public abstract class TierHttpHandler implements Runnable {
 //		long start = this.mgm.getCurrentThreadCpuTime();
 //		while ((this.mgm.getCurrentThreadCpuTime() - start) < delay) {
 //		}
-		long delay = 10000000;
+		long delay = 10000000+this.rnd.nextInt(10000);
 		int k = 0;
 		while (k < delay) {
 			k++;
@@ -91,11 +91,11 @@ public abstract class TierHttpHandler implements Runnable {
 
 	@Override
 	public void run() {
-		//this.mgm = ManagementFactory.getThreadMXBean();
-//		if (!this.mgm.isThreadCpuTimeSupported()) {
-//			System.err.println("ThreadCpuTime in not suppoted");
-//		}
-//		this.mgm.setThreadCpuTimeEnabled(true);
+		this.mgm = ManagementFactory.getThreadMXBean();
+		if (!this.mgm.isThreadCpuTimeSupported()) {
+			System.err.println("ThreadCpuTime in not suppoted");
+		}
+		this.mgm.setThreadCpuTimeEnabled(true);
 		try {
 			if (this.req != null) {
 				this.handleResponse(this.req, this.handleGetRequest(this.req));

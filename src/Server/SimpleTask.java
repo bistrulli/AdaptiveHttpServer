@@ -61,7 +61,7 @@ public class SimpleTask {
 	private HashMap<String, Long> enqueueTime = null;
 	rtSampler rts = null;
 	TCPServer sts = null;
-	private Boolean isCgv2= false;
+	private Boolean isCgv2 = false;
 
 	public SimpleTask(String address, int port, HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize,
 			boolean isEmulated, String name, String jedisHost, Long aHperiod, Long rtSamplingPeriod,
@@ -79,7 +79,7 @@ public class SimpleTask {
 			this.server = HttpServer.create(new InetSocketAddress(port), this.backlogsize);
 			this.setPort(port);
 			this.server.createContext("/", new AcquireHttpHandler(this));
-			//this.server.setExecutor(java.util.concurrent.Executors.newFixedThreadPool(20));
+			// this.server.setExecutor(java.util.concurrent.Executors.newFixedThreadPool(20));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -105,7 +105,7 @@ public class SimpleTask {
 			Long stSamplerPeriod, Boolean isCgv2) {
 		this(address, port, entries, sTimes, tsize, isEmulated, name, jedisHost, aHperiod, rtSamplingPeriod,
 				stSamplerPeriod);
-		this.isCgv2=isCgv2;
+		this.isCgv2 = isCgv2;
 	}
 
 	public SimpleTask(HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize, String name,
@@ -123,9 +123,11 @@ public class SimpleTask {
 		this.initState();
 		this.sts = new TCPServer(3333, this);
 		this.sts.start();
-		ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
-		StateSampler client_sampler = new StateSampler(jedisHost, this);
-		se.scheduleAtFixedRate(client_sampler, 0, stSamplerPeriod, TimeUnit.MILLISECONDS);
+		if (stSamplerPeriod != null) {
+			ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
+			StateSampler client_sampler = new StateSampler(jedisHost, this);
+			se.scheduleAtFixedRate(client_sampler, 0, stSamplerPeriod, TimeUnit.MILLISECONDS);
+		}
 	}
 
 	public void setThreadPoolSize(int size) throws Exception {
