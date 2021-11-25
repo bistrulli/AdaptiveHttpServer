@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -285,8 +286,11 @@ public class SimpleTask {
 //	}
 
 	public void initThreadPoolExecutor() {
-		this.threadpool = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE, 1, TimeUnit.NANOSECONDS,
-				new LinkedBlockingQueue<Runnable>());
+//		this.threadpool = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE, 1, TimeUnit.NANOSECONDS,
+//				new LinkedBlockingQueue<Runnable>());
+		this.threadpool  = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE, 0L,
+				TimeUnit.NANOSECONDS, new SynchronousQueue<Runnable>(), new ThreadPoolExecutor.DiscardPolicy());
+
 		this.threadpool.allowCoreThreadTimeOut(true);
 
 		if (!this.isGenerator)
