@@ -36,11 +36,9 @@ public class TCPServer extends Thread {
 				writer.println("connected");
 
 				while (true) {
-					System.out.println("iteration start");
 					String msg = null;
 					while ((msg = reader.readLine()) == null) {
 					}
-					System.out.println("received "+msg);
 					switch (msg) {
 					case "getState": {
 						HashMap<String, AtomicInteger> state = this.task.getState();
