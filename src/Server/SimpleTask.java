@@ -286,10 +286,9 @@ public class SimpleTask {
 //	}
 
 	public void initThreadPoolExecutor() {
-//		this.threadpool = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE, 1, TimeUnit.NANOSECONDS,
-//				new LinkedBlockingQueue<Runnable>());
-		this.threadpool  = new ThreadPoolExecutor(this.threadpoolSize, 200, 1L,
-				TimeUnit.NANOSECONDS, new SynchronousQueue<Runnable>(), new ThreadPoolExecutor.DiscardPolicy());
+		this.threadpool=(ThreadPoolExecutor) Executors.newCachedThreadPool();
+//		this.threadpool  = new ThreadPoolExecutor(this.threadpoolSize, 200, 1L,
+//				TimeUnit.NANOSECONDS, new SynchronousQueue<Runnable>(), new ThreadPoolExecutor.DiscardPolicy());
 
 		this.threadpool.allowCoreThreadTimeOut(true);
 
