@@ -40,14 +40,13 @@ public abstract class TierHttpHandler implements Runnable {
 		this.req = req;
 		// this.mgm = ManagementFactory.getThreadMXBean();
 
-		try {
-			final ClassLoader loader = this.getClass().getClassLoader();
-			this.webPageTpl = CharStreams
-					.toString(new InputStreamReader(loader.getResourceAsStream(this.getWebPageName()), Charsets.UTF_8));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		this.processBuilder = new ProcessBuilder();
+//		try {
+//			final ClassLoader loader = this.getClass().getClassLoader();
+//			this.webPageTpl = CharStreams
+//					.toString(new InputStreamReader(loader.getResourceAsStream(this.getWebPageName()), Charsets.UTF_8));
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	public abstract void handleResponse(HttpExchange req, String requestParamValue)
