@@ -129,10 +129,10 @@ public abstract class TierHttpHandler implements Runnable {
 	public void measureIngress() {
 		Integer ex = null;
 		Integer bl = null;
-		synchronized (this) {
+		//synchronized (this) {
 			bl = this.lqntask.getState().get(String.format("%s_bl", this.getName())).decrementAndGet();
 			ex = this.lqntask.getState().get(String.format("%s_ex", this.getName())).incrementAndGet();
-		}
+		//}
 		SimpleTask.getLogger().debug(String.format("%s ingress (%d %d)", this.getName(), ex, bl));
 	}
 
