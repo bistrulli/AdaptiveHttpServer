@@ -40,13 +40,13 @@ public abstract class TierHttpHandler implements Runnable {
 		this.req = req;
 		// this.mgm = ManagementFactory.getThreadMXBean();
 
-//		try {
-//			final ClassLoader loader = this.getClass().getClassLoader();
-//			this.webPageTpl = CharStreams
-//					.toString(new InputStreamReader(loader.getResourceAsStream(this.getWebPageName()), Charsets.UTF_8));
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
+		try {
+			final ClassLoader loader = this.getClass().getClassLoader();
+			this.webPageTpl = CharStreams
+					.toString(new InputStreamReader(loader.getResourceAsStream(this.getWebPageName()), Charsets.UTF_8));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public abstract void handleResponse(HttpExchange req, String requestParamValue)
@@ -129,10 +129,10 @@ public abstract class TierHttpHandler implements Runnable {
 	public void measureIngress() {
 		Integer ex = null;
 		Integer bl = null;
-		//synchronized (this) {
+		synchronized (this) {
 			bl = this.lqntask.getState().get(String.format("%s_bl", this.getName())).decrementAndGet();
 			ex = this.lqntask.getState().get(String.format("%s_ex", this.getName())).incrementAndGet();
-		//}
+		}
 		SimpleTask.getLogger().debug(String.format("%s ingress (%d %d)", this.getName(), ex, bl));
 	}
 
