@@ -36,12 +36,14 @@ public class rtSampler implements Runnable {
 		int nel=0;
 		
 		for(int i=samples.length-1; i>=0;i--) {
-			if(samples[samples.length-1].getEnd()-samples[i].getEnd()<=Math.pow(10, 9)) {
-				sum += samples[i].getRT();
-				nel+=1;
-			}else {
-				this.rt.remove(samples[i]);
-			}
+//			if(samples[samples.length-1].getEnd()-samples[i].getEnd()<=Math.pow(10, 9)) {
+//				sum += samples[i].getRT();
+//				nel+=1;
+//			}else {
+//				this.rt.remove(samples[i]);
+//			}
+			sum += samples[i].getRT();
+			nel+=1;
 		}
 		try {
 			this.memcachedClient.set("rt_"+this.name, 3600, String.valueOf(sum / nel)).get();
