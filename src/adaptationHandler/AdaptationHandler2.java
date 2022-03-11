@@ -54,7 +54,7 @@ public class AdaptationHandler2 extends Thread {
 							System.out.println(String.format("%s-%s",String.valueOf(swcore),String.valueOf(hwCore)));
 						}
 						this.task.setHwCore(hwCore);
-						System.out.println(this.task.getThreadpool().getCorePoolSize()+""+this.task.getHwCore()+"");
+						System.out.println(this.task.getThreadpool().getCorePoolSize()+"-"+this.task.getHwCore());
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
