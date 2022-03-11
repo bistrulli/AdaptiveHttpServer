@@ -65,11 +65,9 @@ public abstract class TierHttpHandler implements Runnable {
 	public int doWorkCPU() {
 		long delay = Long.valueOf(Math.round(dist.sample() * 1000000));
 		long start = this.mgm.getCurrentThreadCpuTime();
-		int k=0;
 		while ((this.mgm.getCurrentThreadCpuTime() - start) < delay) {
-			k++;
 		}
-		return k;
+		return 0;
 	}
 
 	public void doWorkSleep(float executing) throws InterruptedException {
