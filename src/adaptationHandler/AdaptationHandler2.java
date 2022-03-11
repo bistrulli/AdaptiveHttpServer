@@ -35,6 +35,7 @@ public class AdaptationHandler2 extends Thread {
 
 				Integer swCore = Integer.valueOf(String.valueOf(memcachedClient.get(this.task.getName()+"_sw")));
 				Float hwCore = Float.valueOf(String.valueOf(memcachedClient.get(this.task.getName()+"_hw")));
+				System.out.println(String.format("%d-%f",swCore,hwCore));
 
 //				if (u.get(0) != null)
 //					swCore = Integer.valueOf(u.get(0));
@@ -53,6 +54,7 @@ public class AdaptationHandler2 extends Thread {
 							System.out.println(String.format("%s-%s",String.valueOf(swcore),String.valueOf(hwCore)));
 						}
 						this.task.setHwCore(hwCore);
+						System.out.println(this.task.getThreadpool().getCorePoolSize()+""+this.task.getHwCore()+"");
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
