@@ -12,12 +12,10 @@ public class testJni {
 		@Override
 		public void run() {
 			super.run();
-			int tid = GetThreadID.get_tid();
-			System.out.println("thread TID=" + tid);
-			
-			testJni.getAffinity(tid);
-			GetThreadID.setAffinity(tid, 3, 5);
-			testJni.getAffinity(tid);
+			int i=0;
+			while(true) {
+				i=i+1;
+			}
 		}
 	}
 	
@@ -41,9 +39,16 @@ public class testJni {
 		int tid = GetThreadID.get_tid();
 		System.out.println("main TID=" + tid);
 		
-		testTid th=new testTid();
-		th.start();
+		testJni.getAffinity(tid);
+		GetThreadID.setAffinity(tid, 3, 5);
+		testJni.getAffinity(tid);
 		
+		testTid[] ths=new testTid[3]; 
+		
+		for(int i=0; i<3; i++) {
+			ths[i]=new testTid();
+			ths[i].start();
+		}
 		
 	}
 }
