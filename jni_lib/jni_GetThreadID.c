@@ -21,8 +21,10 @@ Java_jni_GetThreadID_setAffinity(JNIEnv *env, jobject obj, jint pid,jint scpu,ji
 	cpu_set_t cpuset; 
 	
 	CPU_ZERO(&cpuset);       //clears the cpuset
-	CPU_SET( scpu , &cpuset); //set CPU start on cpuset
-	CPU_SET( ecpu , &cpuset); //set CPU end on cpuset
+	
+	for(int i=scpu;i<=ecpu;i++){
+		CPU_SET( i , &cpuset);
+	}
 	
 	/*
 	* cpu affinity for the calling thread 
