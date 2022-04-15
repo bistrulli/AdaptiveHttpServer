@@ -14,6 +14,25 @@ public class testJni {
 			super.run();
 			int tid = GetThreadID.get_tid();
 			System.out.println("thread TID=" + tid);
+			
+			testJni.getAffinity(tid);
+			GetThreadID.setAffinity(tid, 3, 5);
+			testJni.getAffinity(tid);
+		}
+	}
+	
+	public static void getAffinity(int tid) {
+		String[] cmds = new String[] { "taskset", "-cp", String.valueOf(tid) };
+		try {
+			Process p = Runtime.getRuntime().exec(cmds);
+			BufferedReader is = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String line = null;
+			while ((line = is.readLine()) != null)
+				System.out.println(line);
+			is.close();
+			p.destroy();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -24,21 +43,6 @@ public class testJni {
 		
 		testTid th=new testTid();
 		th.start();
-		
-//		GetThreadID.setAffinity(tid, 1, 1);
-//
-//		String[] cmds = new String[] { "taskset", "-cp", String.valueOf(tid) };
-//		try {
-//			Process p = Runtime.getRuntime().exec(cmds);
-//			BufferedReader is = new BufferedReader(new InputStreamReader(p.getInputStream()));
-//			String line = null;
-//			while ((line = is.readLine()) != null)
-//				System.out.println(line);
-//			is.close();
-//			p.destroy();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
 		
 		
 	}
