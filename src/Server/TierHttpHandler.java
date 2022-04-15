@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -17,6 +18,7 @@ import com.google.common.io.CharStreams;
 import com.sun.net.httpserver.HttpExchange;
 
 import jni.GetThreadID;
+import monitoring.rtSample;
 
 public abstract class TierHttpHandler implements Runnable {
 
@@ -102,6 +104,10 @@ public abstract class TierHttpHandler implements Runnable {
 		} catch (InterruptedException e) {
 		} catch (Exception e) {
 			e.printStackTrace();
+		}finally {
+			Map<String, String> params = this.getLqntask().queryToMap(this.req.getRequestURI().getQuery());
+			this.getLqntask().getRts().addSample(new rtSample(this.getLqntask().getEnqueueTime().get(params.get("id")),
+					System.nanoTime()));
 		}
 	}
 

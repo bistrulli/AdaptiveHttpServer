@@ -110,7 +110,7 @@ public class SimpleTask {
 	}
 
 	public SimpleTask(HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize, String name,
-			String jedisHost, Long stSamplerPeriod) {
+			String jedisHost, Long stSamplerPeriod,Long rtSamplingPeriod) {
 		this.setEnqueueTime(new HashMap<String, Long>());
 		this.setName(name);
 		this.jedisHost = jedisHost;
@@ -128,6 +128,11 @@ public class SimpleTask {
 			ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
 			StateSampler client_sampler = new StateSampler(jedisHost, this);
 			se.scheduleAtFixedRate(client_sampler, 0, stSamplerPeriod, TimeUnit.MILLISECONDS);
+		}
+		if (rtSamplingPeriod != null) {
+			ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
+			this.rts = new rtSampler(this.jedisHost, this.getName());
+			se.scheduleAtFixedRate(rts, 0, rtSamplingPeriod, TimeUnit.MILLISECONDS);
 		}
 	}
 

@@ -1,25 +1,23 @@
 package monitoring;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
-
-import net.spy.memcached.MemcachedClient;
 
 public class rtSampler implements Runnable {
 
 	private ConcurrentLinkedQueue<rtSample> rt = null;
-	private MemcachedClient memcachedClient = null;
-	private String monirotHost = null;
 	private String name = null;
+	private File logFile = null;
+	private FileWriter logW = null;
 
 	public rtSampler(String monirotHost, String name) {
 		this.rt = new ConcurrentLinkedQueue<rtSample>();
-		this.monirotHost = monirotHost;
 		this.name = name;
+		this.logFile = new File(String.format("%s_rtlog.txt", this.name));
 		try {
-			this.memcachedClient = new MemcachedClient(new InetSocketAddress(this.monirotHost, 11211));
+			this.logW = new FileWriter(this.logFile);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -32,23 +30,14 @@ public class rtSampler implements Runnable {
 	}
 
 	private void saveRT(rtSample[] samples) {
-		double sum = 0;
-		int nel=0;
-		
-		for(int i=samples.length-1; i>=0;i--) {
-			if(samples[samples.length-1].getEnd()-samples[i].getEnd()<=Math.pow(10, 9)) {
-				sum += samples[i].getRT();
-				nel+=1;
-			}else {
-				this.rt.remove(samples[i]);
+		rtSample sample = null;
+		while ((sample = this.rt.poll()) != null) {
+			try {
+				this.logW.write(sample.getRT() + "\n");
+				this.logW.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		}
-		try {
-			this.memcachedClient.set("rt_"+this.name, 3600, String.valueOf(sum / nel)).get();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			e.printStackTrace();
 		}
 	}
 

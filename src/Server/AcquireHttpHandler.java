@@ -32,6 +32,15 @@ public class AcquireHttpHandler implements HttpHandler {
 	public void handle(HttpExchange req) throws IOException {
 		SimpleTask.getLogger().debug(String.format("%s recieved", this.task.getName()));
 		Map<String, String> params = this.getTask().queryToMap(req.getRequestURI().getQuery());
+		
+		long stime = System.nanoTime();
+		if (params.get("stime") != null)
+			stime = Long.valueOf(params.get("stime"));
+		else
+			stime = System.nanoTime();
+
+		this.task.getEnqueueTime().put(params.get("id"), stime);
+		
 		if (params.get("entry") == null || params.get("entry").equals("")) {
 			SimpleTask.getLogger().error("Request with no specified entry");
 		}
@@ -59,13 +68,6 @@ public class AcquireHttpHandler implements HttpHandler {
 			// PER QUESTA APPLICAZIONE NON SERVE GPS
 			// SimpleTask.getLogger().debug("GPS choice made");
 			// this.task.getThreadpool().submit(this.backlog.get(this.rnd.nextInt(this.backlog.size())));
-			long stime = System.nanoTime();
-			if (params.get("stime") != null)
-				stime = Long.valueOf(params.get("stime"));
-			else
-				stime = System.nanoTime();
-
-			this.task.getEnqueueTime().put(params.get("id"), stime);
 			
 			
 //			while(this.task.getThreadpoolSize()<this.task.getThreadpool().getActiveCount()) {
