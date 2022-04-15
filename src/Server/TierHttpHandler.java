@@ -174,9 +174,9 @@ public abstract class TierHttpHandler implements Runnable {
 		this.name = name;
 	}
 
-	public void updateAffinity() {
+	public void updateAffinity(int start,int end) {
 //		GetThreadID.setAffinity(this.tid, 1, this.lqntask.getHwCore());
-		String[] commands = new String[] { "taskset", "-pc", String.format("1-%d", this.lqntask.getHwCore().intValue()),
+		String[] commands = new String[] { "taskset", "-pc", String.format("%d-%d", start,end),
 				String.valueOf(this.tid) };
 		try {
 			Process p = Runtime.getRuntime().exec(commands);
