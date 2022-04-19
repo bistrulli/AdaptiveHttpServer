@@ -33,7 +33,7 @@ public class rtSampler implements Runnable {
 		rtSample sample = null;
 		while ((sample = this.rt.poll()) != null) {
 			try {
-				this.logW.write(sample.getRT() + "\n");
+				this.logW.write(String.format("%d\t%d\n", sample.getRT(),sample.getEnd()));
 				this.logW.flush();
 			} catch (IOException e) {
 				e.printStackTrace();

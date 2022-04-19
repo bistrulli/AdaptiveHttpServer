@@ -1,10 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>AdaptiveHttpServer</groupId>
 	<artifactId>AdaptiveHttpServer</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+	</properties>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
@@ -117,7 +119,7 @@
 			<version>30.1.1-jre</version>
 		</dependency>
 		<dependency>
-			<groupId>junit</groupId>     <!-- NOT org.junit here -->
+			<groupId>junit</groupId> <!-- NOT org.junit here -->
 			<artifactId>junit-dep</artifactId>
 			<version>4.8.2</version>
 			<scope>test</scope>
