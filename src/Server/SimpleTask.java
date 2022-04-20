@@ -37,6 +37,7 @@ public class SimpleTask {
 	private ThreadPoolExecutor threadpool = null;
 	private Integer threadpoolSize = 1;
 	private Float hwCore = 1.0f;
+	private int[] affinity=null;
 	private int maxThreadSize = 1000;
 	private boolean isEmulated = true;
 
@@ -107,6 +108,14 @@ public class SimpleTask {
 		this(address, port, entries, sTimes, tsize, isEmulated, name, jedisHost, aHperiod, rtSamplingPeriod,
 				stSamplerPeriod);
 		this.isCgv2 = isCgv2;
+	}
+	
+	public SimpleTask(String address, int port, HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize,
+			boolean isEmulated, String name, String jedisHost, Long aHperiod, Long rtSamplingPeriod,
+			Long stSamplerPeriod, int[] affinity) {
+		this(address, port, entries, sTimes, tsize, isEmulated, name, jedisHost, aHperiod, rtSamplingPeriod,
+				stSamplerPeriod);
+		this.affinity=affinity;
 	}
 
 	public SimpleTask(HashMap<String, Class> entries, HashMap<String, Long> sTimes, int tsize, String name,
@@ -396,5 +405,13 @@ public class SimpleTask {
 
 	public void setIsCgv2(Boolean isCgv2) {
 		this.isCgv2 = isCgv2;
+	}
+
+	public int[] getAffinity() {
+		return affinity;
+	}
+
+	public void setAffinity(int[] affinity) {
+		this.affinity = affinity;
 	}
 }
