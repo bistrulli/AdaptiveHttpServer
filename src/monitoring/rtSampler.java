@@ -15,7 +15,7 @@ public class rtSampler implements Runnable {
 	public rtSampler(String monirotHost, String name) {
 		this.rt = new ConcurrentLinkedQueue<rtSample>();
 		this.name = name;
-		this.logFile = new File(String.format("%s_rtlog.txt", this.name));
+		this.logFile = new File(String.format("%s_rtlog.log", this.name));
 		try {
 			this.logW = new FileWriter(this.logFile);
 		} catch (IOException e) {
