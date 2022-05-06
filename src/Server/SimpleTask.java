@@ -300,7 +300,12 @@ public class SimpleTask {
 //	}
 
 	public void initThreadPoolExecutor() {
-		this.threadpool=(ThreadPoolExecutor) Executors.newCachedThreadPool();
+		
+		int[] aff=null;
+		if((aff=this.getAffinity())!=null) {
+			this.threadpool=(ThreadPoolExecutor) Executors.newFixedThreadPool((this.getAffinity()[1]-this.getAffinity()[0])+1);
+		}else
+			this.threadpool=(ThreadPoolExecutor) Executors.newCachedThreadPool();
 //		this.threadpool  = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE, 1L,
 //				TimeUnit.NANOSECONDS, new SynchronousQueue<Runnable>(), new ThreadPoolExecutor.DiscardPolicy());
 //
