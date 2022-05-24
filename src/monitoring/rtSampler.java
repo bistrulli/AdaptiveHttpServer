@@ -36,7 +36,14 @@ public class rtSampler implements Runnable {
 				this.logW.write(String.format("%d\t%d\n", sample.getRT(),sample.getEnd()));
 				this.logW.flush();
 			} catch (IOException e) {
-				e.printStackTrace();
+				File errorFile = new File(String.format("%s_error.log", this.name));
+				FileWriter fw=null;
+				try {
+					fw = new FileWriter(errorFile);
+					fw.write(e.getMessage());
+				} catch (IOException e2) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
