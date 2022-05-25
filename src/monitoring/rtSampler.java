@@ -26,25 +26,18 @@ public class rtSampler implements Runnable {
 	@Override
 	public void run() {
 		rtSample[] samples = this.rt.toArray(new rtSample[0]);
-		this.saveRT(samples);
+		try {
+			this.saveRT(samples);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
-	private void saveRT(rtSample[] samples) {
+	private void saveRT(rtSample[] samples) throws Exception {
 		rtSample sample = null;
 		while ((sample = this.rt.poll()) != null) {
-			try {
-				this.logW.write(String.format("%d\t%d\n", sample.getRT(),sample.getEnd()));
-				this.logW.flush();
-			} catch (Exception e) {
-				File errorFile = new File(String.format("%s_error.log", this.name));
-				FileWriter fw=null;
-				try {
-					fw = new FileWriter(errorFile);
-					fw.write(e.getMessage());
-				} catch (IOException e2) {
-					e.printStackTrace();
-				}
-			}
+			this.logW.write(String.format("%d\t%d\n", sample.getRT(),sample.getEnd()));
+			//this.logW.flush();
 		}
 	}
 
