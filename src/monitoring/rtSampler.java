@@ -25,7 +25,6 @@ public class rtSampler implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("Called "+System.nanoTime());
 		rtSample[] samples = this.rt.toArray(new rtSample[0]);
 		this.saveRT(samples);
 	}
@@ -36,7 +35,7 @@ public class rtSampler implements Runnable {
 			try {
 				this.logW.write(String.format("%d\t%d\n", sample.getRT(),sample.getEnd()));
 				this.logW.flush();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				File errorFile = new File(String.format("%s_error.log", this.name));
 				FileWriter fw=null;
 				try {
