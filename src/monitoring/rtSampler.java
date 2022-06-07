@@ -36,8 +36,10 @@ public class rtSampler implements Runnable {
 	private void saveRT(rtSample[] samples) throws Exception {
 		rtSample sample = null;
 		while ((sample = this.rt.poll()) != null) {
-			this.logW.write(String.format("%d\t%d\n", sample.getRT(),sample.getEnd()));
-			this.logW.flush();
+			if (sample.getEnd() != null && sample.getStart() != null) {
+				this.logW.write(String.format("%d\t%d\n", sample.getRT(), sample.getEnd()));
+				this.logW.flush();
+			}
 		}
 	}
 
