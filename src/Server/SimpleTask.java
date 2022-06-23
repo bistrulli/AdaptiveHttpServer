@@ -89,11 +89,11 @@ public class SimpleTask {
 		this.tids = new ConcurrentLinkedQueue<Integer>();
 		this.sTimes = sTimes;
 
-//		if (aHperiod != null) {
-//			ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
-//			this.adaptHandler = new AdaptationHandler(this, this.jedisHost);
-//			se.scheduleAtFixedRate(this.adaptHandler, 0, aHperiod, TimeUnit.MILLISECONDS);
-//		}
+		if (aHperiod != null) {
+			ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
+			this.adaptHandler = new AdaptationHandler(this, this.jedisHost);
+			se.scheduleAtFixedRate(this.adaptHandler, 0, aHperiod, TimeUnit.MILLISECONDS);
+		}
 
 		if (rtSamplingPeriod != null) {
 			ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
@@ -306,12 +306,12 @@ public class SimpleTask {
 //			this.threadpool=(ThreadPoolExecutor) Executors.newFixedThreadPool((this.getAffinity()[1]-this.getAffinity()[0])+1);
 //		}else
 		
-		this.threadpool=(ThreadPoolExecutor) Executors.newCachedThreadPool();
+//		this.threadpool=(ThreadPoolExecutor) Executors.newCachedThreadPool();
 		
-//		this.threadpool  = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE, 1L,
-//				TimeUnit.NANOSECONDS, new SynchronousQueue<Runnable>(), new ThreadPoolExecutor.DiscardPolicy());
-//
-//		this.threadpool.allowCoreThreadTimeOut(true);
+		
+		this.threadpool  = new ThreadPoolExecutor(this.threadpoolSize, Integer.MAX_VALUE, 1L,
+				TimeUnit.NANOSECONDS, new LinkedBlockingQueue<Runnable>(),new ThreadPoolExecutor.DiscardPolicy());
+		this.threadpool.allowCoreThreadTimeOut(true);
 
 		if (!this.isGenerator)
 			this.server.setExecutor(null);

@@ -31,7 +31,9 @@ public class AdaptationHandler implements Runnable {
 			if((core=memcachedClient.get(this.task.getName() + "_hw"))!=null)
 				hwCore = Float.valueOf(String.valueOf(core));
 			if (hwCore != null) {
-				int swcore = Math.max(1, Double.valueOf(Math.ceil(hwCore)).intValue());
+				//int swcore = Math.max(1, Double.valueOf(Math.ceil(hwCore)).intValue());
+				int swcore=swCore;
+				System.out.println(this.task.getName()+"-HW:"+hwCore+"-SW:"+swcore);
 				try {
 					this.task.setThreadPoolSize(swcore);
 				} catch (IllegalArgumentException e) {

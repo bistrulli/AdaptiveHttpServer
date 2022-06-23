@@ -104,10 +104,10 @@ public abstract class TierHttpHandler implements Runnable {
 		} catch (InterruptedException e) {
 		} catch (Exception e) {
 			e.printStackTrace();
-		}finally {
+		} finally {
 			Map<String, String> params = this.getLqntask().queryToMap(this.req.getRequestURI().getQuery());
-			this.getLqntask().getRts().addSample(new rtSample(this.getLqntask().getEnqueueTime().get(params.get("id")),
-					System.nanoTime()));
+			this.getLqntask().getRts().addSample(
+					new rtSample(this.getLqntask().getEnqueueTime().get(params.get("id")), System.nanoTime()));
 		}
 	}
 
@@ -133,24 +133,24 @@ public abstract class TierHttpHandler implements Runnable {
 	}
 
 	public void measureIngress() {
-//		Integer ex = null;
-//		Integer bl = null;
-//		synchronized (this) {
-//			bl = this.lqntask.getState().get(String.format("%s_bl", this.getName())).decrementAndGet();
-//			ex = this.lqntask.getState().get(String.format("%s_ex", this.getName())).incrementAndGet();
-//		}
-//		SimpleTask.getLogger().debug(String.format("%s ingress (%d %d)", this.getName(), ex, bl));
+		Integer ex = null;
+		Integer bl = null;
+		// synchronized (this) {
+		bl = this.lqntask.getState().get(String.format("%s_bl", this.getName())).decrementAndGet();
+		ex = this.lqntask.getState().get(String.format("%s_ex", this.getName())).incrementAndGet();
+		// }
+		SimpleTask.getLogger().debug(String.format("%s ingress (%d %d)", this.getName(), ex, bl));
 	}
 
 	public void measureReturn() {
-//		int ex = this.lqntask.getState().get(String.format("%s_ex", this.getName())).incrementAndGet();
-//		SimpleTask.getLogger().debug(String.format("%s return-%s", this.getName(), ex));
+		int ex = this.lqntask.getState().get(String.format("%s_ex", this.getName())).incrementAndGet();
+		SimpleTask.getLogger().debug(String.format("%s return-%s", this.getName(), ex));
 
 	}
 
 	public void measureEgress() {
-//		int ex = this.lqntask.getState().get(String.format("%s_ex", this.getName())).decrementAndGet();
-//		SimpleTask.getLogger().debug(String.format("%s egress-%s", this.getName(), ex));
+		int ex = this.lqntask.getState().get(String.format("%s_ex", this.getName())).decrementAndGet();
+		SimpleTask.getLogger().debug(String.format("%s egress-%s", this.getName(), ex));
 
 	}
 
@@ -174,8 +174,8 @@ public abstract class TierHttpHandler implements Runnable {
 		this.name = name;
 	}
 
-	public void updateAffinity(int start,int end) {
-		String[] commands = new String[] { "taskset", "-pc", String.format("%d-%d", start,end),
+	public void updateAffinity(int start, int end) {
+		String[] commands = new String[] { "taskset", "-pc", String.format("%d-%d", start, end),
 				String.valueOf(this.tid) };
 		try {
 			Process p = Runtime.getRuntime().exec(commands);

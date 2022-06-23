@@ -25,7 +25,7 @@ public class AcquireHttpHandler implements HttpHandler {
 	}
 
 	public void measure(String entry, String snd) {
-		//this.task.getState().get(String.format("%s_bl", entry)).incrementAndGet();
+		this.task.getState().get(String.format("%s_bl", entry)).incrementAndGet();
 	}
 
 	@Override
