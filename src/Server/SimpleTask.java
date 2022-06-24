@@ -129,7 +129,7 @@ public class SimpleTask {
 		this.entries = entries;
 		this.sTimes = sTimes;
 		this.initThreadPoolExecutor();
-		this.threadpool.allowCoreThreadTimeOut(true);
+		//this.threadpool.allowCoreThreadTimeOut(true);
 		this.jedisHost = jedisHost;
 		this.initState();
 		this.sts = new TCPServer(3333, this);
@@ -314,8 +314,8 @@ public class SimpleTask {
 				TimeUnit.NANOSECONDS, new LinkedBlockingQueue<Runnable>(),new ThreadPoolExecutor.DiscardPolicy());
 		this.threadpool.allowCoreThreadTimeOut(true);
 
-		if (!this.isGenerator)
-			this.server.setExecutor(null);
+//		if (!this.isGenerator)
+//			this.server.setExecutor(null);
 	}
 
 	public boolean isEmulated() {
@@ -382,7 +382,7 @@ public class SimpleTask {
 	private void initState() {
 		this.state = new HashMap<String, AtomicInteger>();
 		if (this.isGenerator) {
-			this.state.put("think", new AtomicInteger(0));
+			this.state.put("think", new AtomicInteger(this.threadpoolSize));
 		} else {
 			for (String key : this.entries.keySet()) {
 				this.state.put(key + "_bl", new AtomicInteger(0));
