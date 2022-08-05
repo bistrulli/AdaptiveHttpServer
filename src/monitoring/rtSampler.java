@@ -5,40 +5,49 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class rtSampler implements Runnable {
+import Server.SimpleTask;
+
+public class rtSampler extends Thread {
 
 	private ConcurrentLinkedQueue<rtSample> rt = null;
 	private String name = null;
 	private File logFile = null;
 	private FileWriter logW = null;
+	private Integer nr = 100;
+	private SimpleTask t = null;
 
-	public rtSampler(String monirotHost, String name) {
+	public rtSampler(String monirotHost, String name, SimpleTask t) {
 		this.rt = new ConcurrentLinkedQueue<rtSample>();
 		this.name = name;
-		this.logFile = new File(String.format("%s_rtlog.log", this.name));
+		this.logFile = new File(String.format("%s_t1.log", this.name));
 		try {
 			this.logW = new FileWriter(this.logFile);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		this.t = t;
 	}
 
 	@Override
 	public void run() {
-		rtSample[] samples = this.rt.toArray(new rtSample[0]);
-		try {
-			this.saveRT(samples);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void saveRT(rtSample[] samples) throws Exception {
 		rtSample sample = null;
-		while ((sample = this.rt.poll()) != null) {
-			if (sample.getEnd() != null && sample.getStart() != null) {
-				this.logW.write(String.format("%d\t%d\n", sample.getRT(), sample.getEnd()));
-				this.logW.flush();
+		while (true) {
+			if (this.rt.size() >= this.nr) {
+				try {
+					this.logW.write(System.nanoTime()+"\n");
+					this.logW.flush();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				double rtAvg = 0.0;
+				for (int nsamples = 0; nsamples < this.nr; nsamples++) {
+					sample = this.rt.poll();
+					if (sample.getEnd() != null && sample.getStart() != null) {
+						rtAvg += sample.getEnd() - sample.getStart();
+					}
+				}
+				this.t.getJedisPool().getResource().set(this.t.getName()+"_rt",
+						"%f".formatted(new Object[] { rtAvg / this.nr }));
 			}
 		}
 	}
