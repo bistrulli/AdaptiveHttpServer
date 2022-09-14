@@ -73,11 +73,12 @@ public abstract class TierHttpHandler implements Runnable {
 
 	public void doWorkSleep(float executing) throws InterruptedException {
 		Double isTime = dist.sample();
+		//Double isTime = dist.getMean();
 		SimpleTask.getLogger().debug(String.format("executing %f", executing));
 		SimpleTask.getLogger().debug(String.format("ncore %.3f", this.lqntask.getHwCore()));
 		SimpleTask.getLogger().debug(String.format("%s sleeps for: %.3f", this.lqntask.getName(), isTime));
-		//Float d = isTime.floatValue() * (executing / this.getLqntask().getHwCore().floatValue());
-		Float d= Double.valueOf(dist.getMean()).floatValue() * (executing / this.getLqntask().getHwCore().floatValue());
+		Float d = isTime.floatValue() * (executing / this.getLqntask().getHwCore().floatValue());
+		//Float d= Double.valueOf(dist.getMean()).floatValue() * (executing / this.getLqntask().getHwCore().floatValue());
 		SimpleTask.getLogger().debug(String.format("actual sleep:%d", Math.max(Math.round(d), Math.round(isTime))));
 		TimeUnit.MILLISECONDS.sleep(Math.max(Math.round(d), Math.round(isTime)));
 		SimpleTask.getLogger().debug("work done");
@@ -107,8 +108,11 @@ public abstract class TierHttpHandler implements Runnable {
 			e.printStackTrace();
 		} finally {
 			Map<String, String> params = this.getLqntask().queryToMap(this.req.getRequestURI().getQuery());
+			int qlen = this.getLqntask().getState().get(params.get("entry")+ "_ex").get();
 			this.getLqntask().getRts().addSample(
-					new rtSample(this.getLqntask().getEnqueueTime().get(params.get("id")), System.nanoTime()));
+					new rtSample(this.getLqntask().getEnqueueTime().get(params.get("id")), System.nanoTime(),qlen));
+			
+			this.lqntask.ncmp.addAndGet(1);
 		}
 	}
 

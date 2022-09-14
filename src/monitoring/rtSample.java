@@ -3,6 +3,13 @@ package monitoring;
 public class rtSample {
 	private Long start=null;
 	private Long end=null;
+	private Integer qlen=null;
+	
+	public rtSample(Long start,Long end, Integer qlen) {
+		this.start=start;
+		this.end=end;
+		this.qlen=qlen;
+	}
 	
 	public rtSample(Long start,Long end) {
 		this.start=start;
@@ -26,6 +33,14 @@ public class rtSample {
 	
 	public Long getRT() {
 		return this.end-this.start;
+	}
+
+	public Integer getQlen() {
+		return qlen;
+	}
+
+	public void setQlen(Integer qlen) {
+		this.qlen = qlen;
 	}
 	
 }

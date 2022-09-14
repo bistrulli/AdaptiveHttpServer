@@ -9,9 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -24,9 +22,9 @@ import org.slf4j.LoggerFactory;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
+import Ctrl.Ctrl;
 import adaptationHandler.AdaptationHandler;
 import adaptationHandler.AdaptationListener;
-import monitoring.StateSampler;
 import monitoring.rtSampler;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -61,7 +59,7 @@ public class SimpleTask {
 	private HashMap<String, Class> entries = null;
 	private HashMap<String, Long> sTimes = null;
 	private HashMap<String, AtomicInteger> state = null;
-	private JedisPool jedisPool=null;
+	private JedisPool jedisPool = null;
 	private boolean isGenerator = false;
 	private static Logger logger = LoggerFactory.getLogger(SimpleTask.class);
 
@@ -76,19 +74,23 @@ public class SimpleTask {
 	TCPServer sts = null;
 	private Boolean isCgv2 = false;
 
+	private Ctrl ctrl = null;
+	
+	AtomicInteger ncmp=null;
+
 	/**
-	 * Constructor for a SimpleTask. 
+	 * Constructor for a SimpleTask.
 	 * 
-	 * @param address 
-	 * @param port 
-	 * @param entries 
-	 * @param sTimes 
-	 * @param tsize 
-	 * @param isEmulated 
+	 * @param address
+	 * @param port
+	 * @param entries
+	 * @param sTimes
+	 * @param tsize
+	 * @param isEmulated
 	 * 
-	 * @param name 
-	 * @param dbHost 
-	 * @param aHperiod 
+	 * @param name
+	 * @param dbHost
+	 * @param aHperiod
 	 * @param rtSamplingPeriod
 	 * @param stSamplerPeriod
 	 * 
@@ -104,7 +106,7 @@ public class SimpleTask {
 		this.jedisHost = jedisHost;
 		this.initState();
 		this.sts = new TCPServer(port + 10000, this);
-		this.sts.start();
+		//this.sts.start();
 		try {
 			this.server = HttpServer.create(new InetSocketAddress("127.0.0.1", port), this.backlogsize);
 			this.setPort(port);
@@ -118,34 +120,38 @@ public class SimpleTask {
 		this.initJedisPool();
 		this.tids = new ConcurrentLinkedQueue<Integer>();
 		this.sTimes = sTimes;
+		
+		this.ncmp=new AtomicInteger(0);
 
 		if (aHperiod != null) {
-			//ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
-			//this.adaptHandler = new AdaptationHandler(this, this.jedisHost);
-			//se.scheduleAtFixedRate(this.adaptHandler, 0, aHperiod, TimeUnit.MILLISECONDS);
+			// ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
+			// this.adaptHandler = new AdaptationHandler(this, this.jedisHost);
+			// se.scheduleAtFixedRate(this.adaptHandler, 0, aHperiod,
+			// TimeUnit.MILLISECONDS);
 		}
 
-		if (rtSamplingPeriod != null) {
-			//ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
-			this.rts = new rtSampler(this.jedisHost, this.getName(),this);
-			this.rts.start();
-			//se.scheduleAtFixedRate(rts, 0, rtSamplingPeriod, TimeUnit.MILLISECONDS);
-		}
+		this.rts = new rtSampler();
+		
+		
+		this.ctrl = new Ctrl(this,this.rts);
+		this.ctrl.start();
+		
+		
 	}
-	
+
 	/**
-	 * Constructor for a SimpleTask. 
+	 * Constructor for a SimpleTask.
 	 * 
-	 * @param address 
-	 * @param port 
-	 * @param entries 
-	 * @param sTimes 
-	 * @param tsize 
-	 * @param isEmulated 
+	 * @param address
+	 * @param port
+	 * @param entries
+	 * @param sTimes
+	 * @param tsize
+	 * @param isEmulated
 	 * 
-	 * @param name 
-	 * @param dbHost 
-	 * @param aHperiod 
+	 * @param name
+	 * @param dbHost
+	 * @param aHperiod
 	 * @param rtSamplingPeriod
 	 * @param stSamplerPeriod
 	 * @param isCgv2
@@ -160,18 +166,18 @@ public class SimpleTask {
 	}
 
 	/**
-	 * Constructor for a SimpleTask. 
+	 * Constructor for a SimpleTask.
 	 * 
-	 * @param address 
-	 * @param port 
-	 * @param entries 
-	 * @param sTimes 
-	 * @param tsize 
-	 * @param isEmulated 
+	 * @param address
+	 * @param port
+	 * @param entries
+	 * @param sTimes
+	 * @param tsize
+	 * @param isEmulated
 	 * 
-	 * @param name 
-	 * @param dbHost 
-	 * @param aHperiod 
+	 * @param name
+	 * @param dbHost
+	 * @param aHperiod
 	 * @param rtSamplingPeriod
 	 * @param stSamplerPeriod
 	 * @param isCgv2
@@ -184,16 +190,15 @@ public class SimpleTask {
 				stSamplerPeriod);
 		this.affinity = affinity;
 	}
-	
-	
+
 	/**
-	 * Constructor for a SimpleTask. 
+	 * Constructor for a SimpleTask.
 	 * 
-	 * @param entries 
-	 * @param sTimes 
-	 * @param tsize  
-	 * @param name 
-	 * @param dbHost  
+	 * @param entries
+	 * @param sTimes
+	 * @param tsize
+	 * @param name
+	 * @param dbHost
 	 * @param stSamplerPeriod
 	 * @param rtSamplingPeriod
 	 */
@@ -211,21 +216,21 @@ public class SimpleTask {
 		this.jedisHost = jedisHost;
 		this.initState();
 		this.sts = new TCPServer(3333, this);
-		this.sts.start();
-		if (stSamplerPeriod != null) {
-			ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
-			StateSampler client_sampler = new StateSampler(jedisHost, this);
-			se.scheduleAtFixedRate(client_sampler, 0, stSamplerPeriod, TimeUnit.MILLISECONDS);
-		}
-		if (rtSamplingPeriod != null) {
-			//ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
-			this.rts = new rtSampler(this.jedisHost, this.getName(),this);
-			this.rts.start();
-			//se.scheduleAtFixedRate(rts, 0, rtSamplingPeriod, TimeUnit.MILLISECONDS);
-		}
-		
+		//this.sts.start();
+//		if (stSamplerPeriod != null) {
+//			ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
+//			StateSampler client_sampler = new StateSampler(jedisHost, this);
+//			se.scheduleAtFixedRate(client_sampler, 0, stSamplerPeriod, TimeUnit.MILLISECONDS);
+//		}
+		//if (rtSamplingPeriod != null) {
+			// ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
+			this.rts = new rtSampler();
+			//this.rts.start();
+			// se.scheduleAtFixedRate(rts, 0, rtSamplingPeriod, TimeUnit.MILLISECONDS);
+		//}
+
 		this.initJedisPool();
-		
+
 	}
 
 	public void setThreadPoolSize(int size) throws Exception {
@@ -244,9 +249,10 @@ public class SimpleTask {
 	public void start() {
 		if (!this.isGenerator && this.getServer() != null) {
 			this.getServer().start();
-			//start the adaptation listener (lo devo fare come ultimo task in quanto bloccante)
+			// start the adaptation listener (lo devo fare come ultimo task in quanto
+			// bloccante)
 			Jedis j = this.jedisPool.getResource();
-			j.psubscribe(new AdaptationListener(this), "__key*__:"+this.getName()+"_hw");
+			j.psubscribe(new AdaptationListener(this), "__key*__:" + this.getName() + "_hw");
 		}
 		if (this.isGenerator) {
 			// only in case of workload generator, I assume that there is only one client
@@ -378,7 +384,7 @@ public class SimpleTask {
 		JedisPoolConfig cfg = new JedisPoolConfig();
 		cfg.setMaxTotal(poolSize);
 		cfg.setFairness(true);
-		//cfg.setMaxWaitMillis(10000);
+		// cfg.setMaxWaitMillis(10000);
 		this.jedisPool = new JedisPool(cfg, poolAddr);
 	}
 
@@ -506,5 +512,9 @@ public class SimpleTask {
 
 	public void setAffinity(int[] affinity) {
 		this.affinity = affinity;
+	}
+	
+	public AtomicInteger getNcmp() {
+		return this.ncmp;
 	}
 }
