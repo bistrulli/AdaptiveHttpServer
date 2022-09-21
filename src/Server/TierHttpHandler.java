@@ -11,7 +11,9 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.math3.analysis.function.Gaussian;
 import org.apache.commons.math3.distribution.ExponentialDistribution;
+import org.apache.commons.math3.distribution.NormalDistribution;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
@@ -24,7 +26,7 @@ public abstract class TierHttpHandler implements Runnable {
 
 	private SimpleTask lqntask = null;
 	private Long stime = null;
-	private ExponentialDistribution dist = null;
+	private NormalDistribution dist = null;
 	private ThreadLocalRandom rnd = null;
 	private HttpExchange req = null;
 	private ThreadMXBean mgm = null;
@@ -35,7 +37,8 @@ public abstract class TierHttpHandler implements Runnable {
 
 	public TierHttpHandler(SimpleTask lqntask, HttpExchange req, long stime) {
 		this.setLqntask(lqntask);
-		this.dist = new ExponentialDistribution(stime);
+		//this.dist = new ExponentialDistribution(stime);
+		this.dist= new NormalDistribution(stime, stime/5.0);
 		this.stime = stime;
 		// this.dist=new TruncatedNormal(stime, stime/5, 0, Integer.MAX_VALUE);
 		this.rnd = ThreadLocalRandom.current();
@@ -73,6 +76,7 @@ public abstract class TierHttpHandler implements Runnable {
 
 	public void doWorkSleep(float executing) throws InterruptedException {
 		Double isTime = dist.sample();
+		isTime=isTime>0?isTime:0;
 		//Double isTime = dist.getMean();
 		SimpleTask.getLogger().debug(String.format("executing %f", executing));
 		SimpleTask.getLogger().debug(String.format("ncore %.3f", this.lqntask.getHwCore()));

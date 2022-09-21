@@ -1,29 +1,31 @@
 package Ctrl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import Server.SimpleTask;
 import monitoring.rtSample;
 import monitoring.rtSampler;
+import us.hebi.matlab.mat.format.Mat5;
+import us.hebi.matlab.mat.types.MatFile;
+import us.hebi.matlab.mat.types.Matrix;
 
 public class Ctrl extends Thread {
 
 	private rtSampler rtSampler = null;
-	private Integer nr = 50;
+	private Integer nr = 5;
 	private SimpleTask task = null;
 
 	private double rtAvg = 0.0;
-	private double alpha = 0.995;
+	private double alpha = 0.9;
 	private double cores_min = 0.1;
-	private double cores_max = 1000;
+	private double cores_max = 10000;
 	private double cores_ini = 10;
 	private double t = 0;
 	private int k = 0;
 	private double qlen = 0;
 	private double tauro = 0.25;
 
-	private ArrayList<Double> vt = null;
-	private ArrayList<Double> vqlen = null;
 	private double t_km1 = 0;
 	private double l_km1 = 0;
 	private double e_km1 = 0;
@@ -38,13 +40,15 @@ public class Ctrl extends Thread {
 	private double e_k = 0;
 	private double u_k = 0;
 	private double ncp_km1=0;
+	private ArrayList<Double> vcores=null;
+	private ArrayList<Double> vrt=null;
 
 	public Ctrl(SimpleTask task, rtSampler rtSampler) {
 		this.task = task;
 		this.rtSampler = rtSampler;
 
-		this.vt = new ArrayList<Double>();
-		this.vqlen = new ArrayList<Double>();
+		this.vcores = new ArrayList<Double>();
+		this.vrt = new ArrayList<Double>();
 	}
 
 	@Override
@@ -94,19 +98,34 @@ public class Ctrl extends Thread {
 			u_k = u_km1 + e_k - alpha * e_km1;
 			cores_k = sigma_km1_meas * l_k / ((1 - alpha) * u_k + alpha * taur_meas);
 
-			//System.out.println("Ts=" + Ts);
-			//System.out.println("ros_km1_meas=" + ros_km1_meas);
-//			System.out.println("l_k=" + l_k);
-//			System.out.println("l_km1=" + l_km1);
-			//System.out.println(taur_meas);
-
 			cores_k = Math.min(cores_max, Math.max(cores_min, cores_k));
-
-			System.out.println("new cores, %f".formatted(new Object[] { cores_k }));
 			this.task.setHwCore(Double.valueOf(cores_k).floatValue());
 
 			u_k = (alpha * cores_k * taur_meas - l_k * sigma_km1_meas) / ((alpha - 1) * cores_k);
-
+			
+			this.vcores.add(cores_k);
+			this.vrt.add(this.rtAvg);
+			
+			
+			//devo salvare il mat con i dati dell'esperimento
+			if(k>400) {
+				System.out.println("saving mat");
+				MatFile matFile = Mat5.newMatFile();
+				Matrix rtMatrix = Mat5.newMatrix(1,this.vrt.size());
+				Matrix coreMatrix=Mat5.newMatrix(1,this.vcores.size());
+				for (int i=0; i<this.vrt.size();i++) {
+					rtMatrix.setDouble(0, i, this.vrt.get(i));
+					coreMatrix.setDouble(0, i,this.vcores.get(i));
+				}
+				matFile.addArray("rt", rtMatrix);
+				matFile.addArray("core", coreMatrix);
+				try {
+					Mat5.writeToFile(matFile, "res.mat");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+				
 		}
 
 		this.t_km1 = t_k;
