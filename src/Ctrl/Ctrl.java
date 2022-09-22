@@ -15,7 +15,7 @@ import us.hebi.matlab.mat.types.Matrix;
 public class Ctrl extends Thread {
 
 	private rtSampler rtSampler = null;
-	private Integer nr = 20;
+	private Integer nr = 5;
 	private SimpleTask task = null;
 
 	private double rtAvg = 0.0;
