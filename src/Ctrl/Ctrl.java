@@ -1,5 +1,7 @@
 package Ctrl;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -25,6 +27,7 @@ public class Ctrl extends Thread {
 	private int k = 0;
 	private double qlen = 0;
 	private double tauro = 0.25;
+	final private double period = 10e05;
 
 	private double t_km1 = 0;
 	private double l_km1 = 0;
@@ -39,9 +42,9 @@ public class Ctrl extends Thread {
 	private double cores_k = 0;
 	private double e_k = 0;
 	private double u_k = 0;
-	private double ncp_km1=0;
-	private ArrayList<Double> vcores=null;
-	private ArrayList<Double> vrt=null;
+	private double ncp_km1 = 0;
+	private ArrayList<Double> vcores = null;
+	private ArrayList<Double> vrt = null;
 
 	public Ctrl(SimpleTask task, rtSampler rtSampler) {
 		this.task = task;
@@ -75,12 +78,34 @@ public class Ctrl extends Thread {
 		}
 	}
 
+	private void actuateCtrl(double core) {
+		Long quota = Double.valueOf(core * this.period).longValue();
+		System.out.println(core + " " + quota);
+
+		try {
+			this.task.setThreadPoolSize(Double.valueOf(Math.ceil(core)).intValue());
+			BufferedWriter out;
+			try {
+				out = new BufferedWriter(
+						new FileWriter("/sys/fs/cgroup/" + this.task.getName() + "/e1/", true));
+				out.write(quota+" "+this.period);
+				out.flush();
+				out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+
+	}
+
 	private void doCtrl() {
 		System.out.println("rt=%s, qlen=%s".formatted(new Object[] { this.rtAvg, this.qlen }));
 		this.k++;
 
 		this.t_k = this.t;
-		
+
 		this.l_k = this.qlen;
 		this.ros_km1_meas = 0;
 		this.taur_meas = 0;
@@ -91,7 +116,7 @@ public class Ctrl extends Thread {
 
 		if (this.k > 1) {
 			double Ts = (t_k - t_km1) / 1e09;
-			ros_km1_meas = (this.task.getNcmp().get()-this.ncp_km1) / Ts;
+			ros_km1_meas = (this.task.getNcmp().get() - this.ncp_km1) / Ts;
 			taur_meas = this.qlen / ros_km1_meas;
 			sigma_km1_meas = cores_km1 / ros_km1_meas;
 			e_k = this.tauro - taur_meas;
@@ -99,28 +124,23 @@ public class Ctrl extends Thread {
 			cores_k = sigma_km1_meas * l_k / ((1 - alpha) * u_k + alpha * taur_meas);
 
 			cores_k = Math.min(cores_max, Math.max(cores_min, cores_k));
-			//this.task.setHwCore(Double.valueOf(cores_k).floatValue());
-//			try {
-//				this.task.setThreadPoolSize(Double.valueOf(Math.ceil(cores_k)).intValue());
-//			} catch (Exception e1) {
-//				e1.printStackTrace();
-//			}
+			// this.task.setHwCore(Double.valueOf(cores_k).floatValue());
+			this.actuateCtrl(cores_k);
 
 			u_k = (alpha * cores_k * taur_meas - l_k * sigma_km1_meas) / ((alpha - 1) * cores_k);
-			
+
 			this.vcores.add(cores_k);
 			this.vrt.add(this.rtAvg);
-			
-			
-			//devo salvare il mat con i dati dell'esperimento
-			if(k>100) {
+
+			// devo salvare il mat con i dati dell'esperimento
+			if (k > 100) {
 				System.out.println("saving mat");
 				MatFile matFile = Mat5.newMatFile();
-				Matrix rtMatrix = Mat5.newMatrix(1,this.vrt.size());
-				Matrix coreMatrix=Mat5.newMatrix(1,this.vcores.size());
-				for (int i=0; i<this.vrt.size();i++) {
+				Matrix rtMatrix = Mat5.newMatrix(1, this.vrt.size());
+				Matrix coreMatrix = Mat5.newMatrix(1, this.vcores.size());
+				for (int i = 0; i < this.vrt.size(); i++) {
 					rtMatrix.setDouble(0, i, this.vrt.get(i));
-					coreMatrix.setDouble(0, i,this.vcores.get(i));
+					coreMatrix.setDouble(0, i, this.vcores.get(i));
 				}
 				matFile.addArray("rt", rtMatrix);
 				matFile.addArray("core", coreMatrix);
@@ -130,14 +150,14 @@ public class Ctrl extends Thread {
 					e.printStackTrace();
 				}
 			}
-				
+
 		}
 
 		this.t_km1 = t_k;
 		this.l_km1 = l_k;
 		this.e_km1 = e_k;
 		this.u_km1 = u_k;
-		this.ncp_km1=this.task.getNcmp().get();
+		this.ncp_km1 = this.task.getNcmp().get();
 		this.cores_km1 = cores_k;
 		this.t = System.nanoTime();
 	}
