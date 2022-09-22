@@ -86,9 +86,8 @@ public class Ctrl extends Thread {
 			this.task.setThreadPoolSize(Double.valueOf(Math.ceil(core)).intValue());
 			BufferedWriter out;
 			try {
-				out = new BufferedWriter(
-						new FileWriter("/sys/fs/cgroup/" + this.task.getName() + "/e1/cpu.max", true));
-				out.write(quota+" "+this.period+"\n");
+				out = new BufferedWriter(new FileWriter("/sys/fs/cgroup/" + this.task.getName() + "/e1/cpu.max", true));
+				out.write(quota + " " + this.period + "\n");
 				out.flush();
 				out.close();
 			} catch (IOException e) {
@@ -161,4 +160,29 @@ public class Ctrl extends Thread {
 		this.cores_km1 = cores_k;
 		this.t = System.nanoTime();
 	}
+
+	public Integer getNr() {
+		return nr;
+	}
+
+	public void setNr(Integer nr) {
+		this.nr = nr;
+	}
+
+	public double getAlpha() {
+		return alpha;
+	}
+
+	public void setAlpha(double alpha) {
+		this.alpha = alpha;
+	}
+
+	public double getTauro() {
+		return tauro;
+	}
+
+	public void setTauro(double tauro) {
+		this.tauro = tauro;
+	}
+
 }

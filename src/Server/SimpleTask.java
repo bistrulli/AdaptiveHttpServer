@@ -517,4 +517,13 @@ public class SimpleTask {
 	public AtomicInteger getNcmp() {
 		return this.ncmp;
 	}
+
+	public Ctrl getCtrl() {
+		return ctrl;
+	}
+
+	public void setCtrl(Ctrl ctrl) {
+		this.ctrl = ctrl;
+	}
+	
 }
