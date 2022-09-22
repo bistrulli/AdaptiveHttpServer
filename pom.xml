@@ -31,7 +31,7 @@
 							<archive>
 								<manifest>
 									<mainClass>
-										test_informal.testJni
+										test_informal.Test_cgv2
 									</mainClass>
 								</manifest>
 							</archive>

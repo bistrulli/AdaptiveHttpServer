@@ -30,7 +30,7 @@ public class Sched implements Runnable {
 		System.out.println("PID dello scheduler:" + tid);
 		BufferedWriter out;
 		try {
-			out = new BufferedWriter(new FileWriter("/sys/fs/cgroup/tier1/sched/cgroup.threads", true));
+			out = new BufferedWriter(new FileWriter("/sys/fs/cgroup/N1/sched/cgroup.threads", true));
 			out.write(String.valueOf(tid));
 			out.flush();
 			out.close();
@@ -38,7 +38,7 @@ public class Sched implements Runnable {
 			e.printStackTrace();
 		}
 		while (true) {
-			this.doWorkCPU(100d, this.mgm);
+			this.doWorkCPU(1000d, this.mgm);
 			Sched.nrq.incrementAndGet();
 		}
 	}

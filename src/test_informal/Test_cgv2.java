@@ -21,7 +21,7 @@ public class Test_cgv2 {
 		// aggiungo questo processo al gruppo principale del tier
 		BufferedWriter out;
 		try {
-			out = new BufferedWriter(new FileWriter("/sys/fs/cgroup/tier1/cgroup.procs", true));
+			out = new BufferedWriter(new FileWriter("/sys/fs/cgroup/N1/cgroup.procs", true));
 			out.write(String.valueOf(tid));
 			out.flush();
 			out.close();
@@ -29,8 +29,8 @@ public class Test_cgv2 {
 			e.printStackTrace();
 		}
 		
-		int nSched=10;
-		int nSrv=10;
+		int nSched=1;
+		int nSrv=1;
 
 		// creo il threadpool di serventi
 		ExecutorService sched = java.util.concurrent.Executors.newFixedThreadPool(nSched);

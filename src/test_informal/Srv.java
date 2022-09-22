@@ -27,11 +27,12 @@ public class Srv implements Runnable {
 	@Override
 	public void run() {
 		int tid = GetThreadID.get_tid();
+		this.mgm = ManagementFactory.getThreadMXBean();
 		System.out.println("PID dell servente:" + tid);
 		// aggiungo questo thread gruppo dei serventi
 		BufferedWriter out;
 		try {
-			out = new BufferedWriter(new FileWriter("/sys/fs/cgroup/tier1/srv/cgroup.threads", true));
+			out = new BufferedWriter(new FileWriter("/sys/fs/cgroup/N1/srv/cgroup.threads", true));
 			out.write(String.valueOf(tid));
 			out.flush();
 			out.close();
@@ -39,11 +40,8 @@ public class Srv implements Runnable {
 			e.printStackTrace();
 		}
 		while (true) {
-			ThreadMXBean mgm = ManagementFactory.getThreadMXBean();
-			while (true) {
-				this.doWorkCPU(100d, this.mgm);
-				Srv.nrq.incrementAndGet();
-			}
+			this.doWorkCPU(1000d, this.mgm);
+			Srv.nrq.incrementAndGet();
 		}
 	}
 }
