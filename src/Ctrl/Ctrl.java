@@ -87,8 +87,8 @@ public class Ctrl extends Thread {
 			BufferedWriter out;
 			try {
 				out = new BufferedWriter(
-						new FileWriter("/sys/fs/cgroup/" + this.task.getName() + "/e1/", true));
-				out.write(quota+" "+this.period);
+						new FileWriter("/sys/fs/cgroup/" + this.task.getName() + "/e1/cpu.max", true));
+				out.write(quota+" "+this.period+"\n");
 				out.flush();
 				out.close();
 			} catch (IOException e) {
