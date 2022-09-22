@@ -54,6 +54,8 @@ public class Test_cgv2 {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		
+		System.out.println("finished");
+		System.exit(0);
 	}
 }
