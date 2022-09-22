@@ -30,7 +30,7 @@ public class Test_cgv2 {
 		}
 		
 		int nSched=1;
-		int nSrv=4;
+		int nSrv=20;
 
 		// creo il threadpool di serventi
 		ExecutorService sched = java.util.concurrent.Executors.newFixedThreadPool(nSched);
