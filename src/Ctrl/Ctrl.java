@@ -82,21 +82,21 @@ public class Ctrl extends Thread {
 		Long quota = Double.valueOf(core * this.period).longValue();
 		System.out.println(core + " " + quota);
 
-		try {
-			this.task.setThreadPoolSize(Double.valueOf(Math.ceil(core)).intValue());
-			BufferedWriter out;
-			try {
-				out = new BufferedWriter(
-						new FileWriter("/sys/fs/cgroup/" + this.task.getName() + "/e1/cpu.max", true));
-				out.write(quota+" "+this.period+"\n");
-				out.flush();
-				out.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+//		try {
+//			this.task.setThreadPoolSize(Double.valueOf(Math.ceil(core)).intValue());
+//			BufferedWriter out;
+//			try {
+//				out = new BufferedWriter(
+//						new FileWriter("/sys/fs/cgroup/" + this.task.getName() + "/e1/cpu.max", true));
+//				out.write(quota+" "+this.period+"\n");
+//				out.flush();
+//				out.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		} catch (Exception e1) {
+//			e1.printStackTrace();
+//		}
 
 	}
 
