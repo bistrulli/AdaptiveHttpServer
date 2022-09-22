@@ -27,7 +27,7 @@ public class Ctrl extends Thread {
 	private int k = 0;
 	private double qlen = 0;
 	private double tauro = 0.25;
-	final private double period = 10e05;
+	final private double period = 1e05;
 
 	private double t_km1 = 0;
 	private double l_km1 = 0;
@@ -125,7 +125,7 @@ public class Ctrl extends Thread {
 
 			cores_k = Math.min(cores_max, Math.max(cores_min, cores_k));
 			// this.task.setHwCore(Double.valueOf(cores_k).floatValue());
-			this.actuateCtrl(cores_k);
+			//this.actuateCtrl(cores_k);
 
 			u_k = (alpha * cores_k * taur_meas - l_k * sigma_km1_meas) / ((alpha - 1) * cores_k);
 
