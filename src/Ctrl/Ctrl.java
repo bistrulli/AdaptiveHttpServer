@@ -15,11 +15,11 @@ import us.hebi.matlab.mat.types.Matrix;
 public class Ctrl extends Thread {
 
 	private rtSampler rtSampler = null;
-	private Integer nr = 10;
+	private Integer nr = 20;
 	private SimpleTask task = null;
 
 	private double rtAvg = 0.0;
-	private double alpha = 0.9;
+	private double alpha = 0.7;
 	private double cores_min = 0.1;
 	private double cores_max = 7;
 	private double cores_ini = 1;
