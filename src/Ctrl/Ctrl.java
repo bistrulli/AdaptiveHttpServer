@@ -13,14 +13,14 @@ import us.hebi.matlab.mat.types.Matrix;
 public class Ctrl extends Thread {
 
 	private rtSampler rtSampler = null;
-	private Integer nr = 5;
+	private Integer nr = 20;
 	private SimpleTask task = null;
 
 	private double rtAvg = 0.0;
 	private double alpha = 0.9;
 	private double cores_min = 0.1;
-	private double cores_max = 10000;
-	private double cores_ini = 10;
+	private double cores_max = 7;
+	private double cores_ini = 1;
 	private double t = 0;
 	private int k = 0;
 	private double qlen = 0;
@@ -99,7 +99,12 @@ public class Ctrl extends Thread {
 			cores_k = sigma_km1_meas * l_k / ((1 - alpha) * u_k + alpha * taur_meas);
 
 			cores_k = Math.min(cores_max, Math.max(cores_min, cores_k));
-			this.task.setHwCore(Double.valueOf(cores_k).floatValue());
+			//this.task.setHwCore(Double.valueOf(cores_k).floatValue());
+//			try {
+//				this.task.setThreadPoolSize(Double.valueOf(Math.ceil(cores_k)).intValue());
+//			} catch (Exception e1) {
+//				e1.printStackTrace();
+//			}
 
 			u_k = (alpha * cores_k * taur_meas - l_k * sigma_km1_meas) / ((alpha - 1) * cores_k);
 			
@@ -108,7 +113,7 @@ public class Ctrl extends Thread {
 			
 			
 			//devo salvare il mat con i dati dell'esperimento
-			if(k>400) {
+			if(k>100) {
 				System.out.println("saving mat");
 				MatFile matFile = Mat5.newMatFile();
 				Matrix rtMatrix = Mat5.newMatrix(1,this.vrt.size());
