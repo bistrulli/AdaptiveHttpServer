@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.math3.analysis.function.Gaussian;
-import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 
 import com.google.common.base.Charsets;
@@ -21,12 +19,13 @@ import com.sun.net.httpserver.HttpExchange;
 
 import jni.GetThreadID;
 import monitoring.rtSample;
+import utility.TruncatedNormal;
 
 public abstract class TierHttpHandler implements Runnable {
 
 	private SimpleTask lqntask = null;
 	private Long stime = null;
-	private NormalDistribution dist = null;
+	private TruncatedNormal dist = null;
 	private ThreadLocalRandom rnd = null;
 	private HttpExchange req = null;
 	private ThreadMXBean mgm = null;
@@ -38,9 +37,9 @@ public abstract class TierHttpHandler implements Runnable {
 	public TierHttpHandler(SimpleTask lqntask, HttpExchange req, long stime) {
 		this.setLqntask(lqntask);
 		// this.dist = new ExponentialDistribution(stime);
-		this.dist = new NormalDistribution(stime, stime / 5.0);
+		//this.dist = new NormalDistribution(stime, stime / 5.0);
 		this.stime = stime;
-		// this.dist=new TruncatedNormal(stime, stime/5, 0, Integer.MAX_VALUE);
+		this.dist=new TruncatedNormal(stime, stime/10, 0, Integer.MAX_VALUE);
 		this.rnd = ThreadLocalRandom.current();
 		this.req = req;
 		// this.mgm = ManagementFactory.getThreadMXBean();
@@ -62,8 +61,8 @@ public abstract class TierHttpHandler implements Runnable {
 	public abstract String getName();
 
 	public void doWorkCPU() {
-		// long delay = Long.valueOf(Math.round(dist.sample() * 1000000));
-		long delay = Long.valueOf(Math.round(dist.getMean() * 1000000));
+		long delay = Long.valueOf(Math.round(dist.sample() * 1000000));
+		//long delay = Long.valueOf(Math.round(dist.getMean() * 1000000));
 		long start = this.mgm.getCurrentThreadCpuTime();
 		while ((this.mgm.getCurrentThreadCpuTime() - start) < delay) {
 		}
