@@ -150,7 +150,7 @@ public class Ctrl extends Thread {
 				matFile.addArray("core", coreMatrix);
 				matFile.addArray("ctime", timeMatrix);
 				try {
-					Mat5.writeToFile(matFile, "res.mat");
+					Mat5.writeToFile(matFile, this.task.getName()+"out.mat");
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
