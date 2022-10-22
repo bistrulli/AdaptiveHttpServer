@@ -39,7 +39,7 @@ public abstract class TierHttpHandler implements Runnable {
 		// this.dist = new ExponentialDistribution(stime);
 		//this.dist = new NormalDistribution(stime, stime / 5.0);
 		this.stime = stime;
-		this.dist=new TruncatedNormal(stime, stime/30.0, 0, Integer.MAX_VALUE);
+		this.dist=new TruncatedNormal(stime, stime/50.0, 0, Integer.MAX_VALUE);
 		this.rnd = ThreadLocalRandom.current();
 		this.req = req;
 		// this.mgm = ManagementFactory.getThreadMXBean();
