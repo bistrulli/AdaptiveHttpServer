@@ -45,6 +45,7 @@ public class Ctrl extends Thread {
 	private double ncp_km1 = 0;
 	private ArrayList<Double> vcores = null;
 	private ArrayList<Double> vrt = null;
+	private ArrayList<Double> vctrlTime=null;
 
 	public Ctrl(SimpleTask task, rtSampler rtSampler) {
 		this.task = task;
@@ -52,6 +53,7 @@ public class Ctrl extends Thread {
 
 		this.vcores = new ArrayList<Double>();
 		this.vrt = new ArrayList<Double>();
+		this.vctrlTime= new ArrayList<Double>();
 	}
 
 	@Override
@@ -80,7 +82,7 @@ public class Ctrl extends Thread {
 
 	private void actuateCtrl(double core) {
 		Long quota = Double.valueOf(core * this.period).longValue();
-		System.out.println(core + " " + quota);
+		//System.out.println(core + " " + quota);
 
 		try {
 			this.task.setThreadPoolSize(Double.valueOf(Math.ceil(core)).intValue());
@@ -130,6 +132,7 @@ public class Ctrl extends Thread {
 
 			this.vcores.add(cores_k);
 			this.vrt.add(this.rtAvg);
+			this.vctrlTime.add(this.t_k);
 
 			// devo salvare il mat con i dati dell'esperimento
 			if (k > 100) {
@@ -137,14 +140,17 @@ public class Ctrl extends Thread {
 				MatFile matFile = Mat5.newMatFile();
 				Matrix rtMatrix = Mat5.newMatrix(1, this.vrt.size());
 				Matrix coreMatrix = Mat5.newMatrix(1, this.vcores.size());
+				Matrix timeMatrix = Mat5.newMatrix(1, this.vctrlTime.size());
 				for (int i = 0; i < this.vrt.size(); i++) {
 					rtMatrix.setDouble(0, i, this.vrt.get(i));
 					coreMatrix.setDouble(0, i, this.vcores.get(i));
+					timeMatrix.setDouble(0, i, this.vctrlTime.get(i));
 				}
 				matFile.addArray("rt", rtMatrix);
 				matFile.addArray("core", coreMatrix);
+				matFile.addArray("ctime", timeMatrix);
 				try {
-					Mat5.writeToFile(matFile, "res.mat");
+					Mat5.writeToFile(matFile, this.task.getName()+"out.mat");
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
