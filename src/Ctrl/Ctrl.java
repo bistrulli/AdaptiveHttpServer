@@ -6,8 +6,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import Server.SimpleTask;
+import adaptationHandler.AdaptationListener;
+import adaptationHandler.SLAListener;
 import monitoring.rtSample;
 import monitoring.rtSampler;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.types.MatFile;
 import us.hebi.matlab.mat.types.Matrix;
@@ -57,6 +61,9 @@ public class Ctrl extends Thread {
 		this.vrt = new ArrayList<Double>();
 		this.vctrlTime= new ArrayList<Double>();
 		this.vU= new ArrayList<Double>();
+		
+		Jedis j = this.task.getJedisPool().getResource();
+		j.psubscribe(new SLAListener(this), "__key*__:" + this.task.getName() + "_sla");
 	}
 
 	@Override
