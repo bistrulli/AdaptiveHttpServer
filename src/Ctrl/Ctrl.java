@@ -6,12 +6,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import Server.SimpleTask;
-import adaptationHandler.AdaptationListener;
 import adaptationHandler.SLAListener;
 import monitoring.rtSample;
 import monitoring.rtSampler;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.types.MatFile;
 import us.hebi.matlab.mat.types.Matrix;
@@ -19,7 +17,7 @@ import us.hebi.matlab.mat.types.Matrix;
 public class Ctrl extends Thread {
 
 	private rtSampler rtSampler = null;
-	private Integer nr = 5;
+	private Integer nr = null;
 	private SimpleTask task = null;
 
 	private double rtAvg = 0.0;
@@ -49,9 +47,8 @@ public class Ctrl extends Thread {
 	private double ncp_km1 = 0;
 	private ArrayList<Double> vcores = null;
 	private ArrayList<Double> vrt = null;
-	private ArrayList<Double> vctrlTime=null;
-	private ArrayList<Double> vU=null;
-	
+	private ArrayList<Double> vctrlTime = null;
+	private ArrayList<Double> vU = null;
 
 	public Ctrl(SimpleTask task, rtSampler rtSampler) {
 		this.task = task;
@@ -59,11 +56,12 @@ public class Ctrl extends Thread {
 
 		this.vcores = new ArrayList<Double>();
 		this.vrt = new ArrayList<Double>();
-		this.vctrlTime= new ArrayList<Double>();
-		this.vU= new ArrayList<Double>();
-		
+		this.vctrlTime = new ArrayList<Double>();
+		this.vU = new ArrayList<Double>();
+
 		Jedis j = this.task.getJedisPool().getResource();
 		j.psubscribe(new SLAListener(this), "__key*__:" + this.task.getName() + "_sla");
+		j.close();
 	}
 
 	@Override
@@ -92,7 +90,7 @@ public class Ctrl extends Thread {
 
 	private void actuateCtrl(double core) {
 		Long quota = Double.valueOf(core * this.period).longValue();
-		//System.out.println(core + " " + quota);
+		// System.out.println(core + " " + quota);
 
 		try {
 			this.task.setThreadPoolSize(Math.max(1, Double.valueOf(Math.ceil(core)).intValue()));
@@ -157,14 +155,14 @@ public class Ctrl extends Thread {
 					rtMatrix.setDouble(0, i, this.vrt.get(i));
 					coreMatrix.setDouble(0, i, this.vcores.get(i));
 					timeMatrix.setDouble(0, i, this.vctrlTime.get(i));
-					uMatrix.setDouble(0, i,this.vU.get(i));
+					uMatrix.setDouble(0, i, this.vU.get(i));
 				}
 				matFile.addArray("rt", rtMatrix);
 				matFile.addArray("core", coreMatrix);
 				matFile.addArray("ctime", timeMatrix);
 				matFile.addArray("u", uMatrix);
 				try {
-					Mat5.writeToFile(matFile, this.task.getName()+"out.mat");
+					Mat5.writeToFile(matFile, this.task.getName() + "out.mat");
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -203,6 +201,14 @@ public class Ctrl extends Thread {
 
 	public void setTauro(double tauro) {
 		this.tauro = tauro;
+	}
+
+	public SimpleTask getTask() {
+		return task;
+	}
+
+	public void setTask(SimpleTask task) {
+		this.task = task;
 	}
 
 }
