@@ -58,12 +58,12 @@ public class Ctrl extends Thread {
 		this.vrt = new ArrayList<Double>();
 		this.vctrlTime = new ArrayList<Double>();
 		this.vU = new ArrayList<Double>();
+		
+		System.out.println("ctrl on");
 
 		Jedis j = this.task.getJedisPool().getResource();
 		j.psubscribe(new SLAListener(this), "__key*__:" + this.task.getName() + "_sla");
 		j.close();
-		
-		System.out.println("ctrl on");
 	}
 
 	@Override
