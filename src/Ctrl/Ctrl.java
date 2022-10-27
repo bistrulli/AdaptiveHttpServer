@@ -62,6 +62,8 @@ public class Ctrl extends Thread {
 		Jedis j = this.task.getJedisPool().getResource();
 		j.psubscribe(new SLAListener(this), "__key*__:" + this.task.getName() + "_sla");
 		j.close();
+		
+		System.out.println("ctrl on");
 	}
 
 	@Override
