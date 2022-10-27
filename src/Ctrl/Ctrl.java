@@ -49,6 +49,7 @@ public class Ctrl extends Thread {
 	private ArrayList<Double> vrt = null;
 	private ArrayList<Double> vctrlTime = null;
 	private ArrayList<Double> vU = null;
+	private Jedis j=null;
 
 	public Ctrl(SimpleTask task, rtSampler rtSampler) {
 		this.task = task;
@@ -59,16 +60,17 @@ public class Ctrl extends Thread {
 		this.vctrlTime = new ArrayList<Double>();
 		this.vU = new ArrayList<Double>();
 		
-		final SimpleTask lqnTask=this.task;
-		
-		Thread t = new Thread() {
-		    public void run() {
-		    	Jedis j = lqnTask.getJedisPool().getResource();
-				j.psubscribe(new SLAListener(lqnTask.getCtrl()), "__key*__:" + lqnTask.getName() + "_sla");
-				j.close();
-		    }
-		};
-		t.start();
+		j=this.task.getJedisPool().getResource();
+
+//		final SimpleTask lqnTask=this.task;
+//		Thread t = new Thread() {
+//		    public void run() {
+//		    	Jedis j = lqnTask.getJedisPool().getResource();
+//				j.psubscribe(new SLAListener(lqnTask.getCtrl()), "__key*__:" + lqnTask.getName() + "_sla");
+//				j.close();
+//		    }
+//		};
+//		t.start();
 	}
 
 	@Override
@@ -119,6 +121,11 @@ public class Ctrl extends Thread {
 	private void doCtrl() {
 		System.out.println("rt=%s, qlen=%s".formatted(new Object[] { this.rtAvg, this.qlen }));
 		this.k++;
+		
+		String sla=this.j.get(this.task.getName()+"_sla");
+		if(sla!=null) {
+			this.tauro=Double.valueOf(sla);
+		}
 
 		this.t_k = this.t;
 
