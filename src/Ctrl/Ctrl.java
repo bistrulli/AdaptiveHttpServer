@@ -88,7 +88,7 @@ public class Ctrl extends Thread {
 		//System.out.println(core + " " + quota);
 
 		try {
-			this.task.setThreadPoolSize(Double.valueOf(Math.ceil(core)).intValue());
+			this.task.setThreadPoolSize(Math.max(1, Double.valueOf(Math.ceil(core)).intValue()));
 			BufferedWriter out;
 			try {
 				out = new BufferedWriter(new FileWriter("/sys/fs/cgroup/" + this.task.getName() + "/e1/cpu.max", true));
@@ -127,7 +127,7 @@ public class Ctrl extends Thread {
 			u_k = u_km1 + e_k - alpha * e_km1;
 			cores_k = sigma_km1_meas * l_k / ((1 - alpha) * u_k + alpha * taur_meas);
 
-			cores_k = Math.min(cores_max, Math.max(cores_min, cores_k));
+			cores_k = Math.min(cores_max, Math.max(this.cores_min, cores_k));
 			// this.task.setHwCore(Double.valueOf(cores_k).floatValue());
 			this.actuateCtrl(cores_k);
 
