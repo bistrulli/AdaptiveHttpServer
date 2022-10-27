@@ -21,7 +21,7 @@ public class Ctrl extends Thread {
 	private double rtAvg = 0.0;
 	private double alpha = 0.7;
 	private double cores_min = 0.1;
-	private double cores_max = 7;
+	private double cores_max = 30;
 	private double cores_ini = 1;
 	private double t = 0;
 	private int k = 0;
