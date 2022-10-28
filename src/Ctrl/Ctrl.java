@@ -88,7 +88,7 @@ public class Ctrl extends Thread {
 	}
 
 	private void actuateCtrl(double core) {
-		Long quota = Double.valueOf(core * this.period).longValue();
+		Long quota = Double.valueOf(Math.ceil(core * this.period)).longValue();
 		System.out.println(core + " " + quota);
 
 		try {
