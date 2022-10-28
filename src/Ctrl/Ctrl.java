@@ -49,7 +49,7 @@ public class Ctrl extends Thread {
 	private ArrayList<Double> vrt = null;
 	private ArrayList<Double> vctrlTime = null;
 	private ArrayList<Double> vU = null;
-	private Jedis j=null;
+	private Jedis j = null;
 
 	public Ctrl(SimpleTask task, rtSampler rtSampler) {
 		this.task = task;
@@ -59,18 +59,8 @@ public class Ctrl extends Thread {
 		this.vrt = new ArrayList<Double>();
 		this.vctrlTime = new ArrayList<Double>();
 		this.vU = new ArrayList<Double>();
-		
-		j=this.task.getJedisPool().getResource();
 
-//		final SimpleTask lqnTask=this.task;
-//		Thread t = new Thread() {
-//		    public void run() {
-//		    	Jedis j = lqnTask.getJedisPool().getResource();
-//				j.psubscribe(new SLAListener(lqnTask.getCtrl()), "__key*__:" + lqnTask.getName() + "_sla");
-//				j.close();
-//		    }
-//		};
-//		t.start();
+		j = this.task.getJedisPool().getResource();
 	}
 
 	@Override
@@ -99,7 +89,7 @@ public class Ctrl extends Thread {
 
 	private void actuateCtrl(double core) {
 		Long quota = Double.valueOf(core * this.period).longValue();
-		// System.out.println(core + " " + quota);
+		System.out.println(core + " " + quota);
 
 		try {
 			this.task.setThreadPoolSize(Math.max(1, Double.valueOf(Math.ceil(core)).intValue()));
@@ -121,10 +111,10 @@ public class Ctrl extends Thread {
 	private void doCtrl() {
 		System.out.println("rt=%s, qlen=%s".formatted(new Object[] { this.rtAvg, this.qlen }));
 		this.k++;
-		
-		String sla=this.j.get(this.task.getName()+"_sla");
-		if(sla!=null) {
-			this.tauro=Double.valueOf(sla);
+
+		String sla = this.j.get(this.task.getName() + "_sla");
+		if (sla != null) {
+			this.tauro = Double.valueOf(sla);
 		}
 
 		this.t_k = this.t;
