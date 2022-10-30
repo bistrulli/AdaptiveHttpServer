@@ -136,8 +136,7 @@ public class Ctrl extends Thread {
 			cores_k = sigma_km1_meas * l_k / ((1 - alpha) * u_k + alpha * taur_meas);
 			
 			
-			
-			System.out.println(cores_max+" "+this.cores_min+" "+cores_k);
+			System.out.println(alpha+" "+u_k+" "+taur_meas+" "+e_k);
 			cores_k = Math.min(this.cores_max, Math.max(this.cores_min, cores_k));
 			// this.task.setHwCore(Double.valueOf(cores_k).floatValue());
 			this.actuateCtrl(cores_k);
