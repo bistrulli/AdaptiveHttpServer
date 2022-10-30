@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -61,8 +62,13 @@ public abstract class TierHttpHandler implements Runnable {
 	public abstract String getName();
 
 	public void doWorkCPU() {
-		long delay = Long.valueOf(Math.round(dist.sample() * 1000000));
-		//long delay = Long.valueOf(Math.round(dist.getMean() * 1000000));
+		//long delay = Long.valueOf(Math.round(dist.sample() * 1000000));
+		
+		java.util.Random r = new java.util.Random();
+		double noise = r.nextGaussian() * Math.sqrt(this.stime/100) + this.stime;
+		
+		long delay = Long.valueOf(Math.round(noise * 1000000));
+		
 		long start = this.mgm.getCurrentThreadCpuTime();
 		while ((this.mgm.getCurrentThreadCpuTime() - start) < delay) {
 		}
