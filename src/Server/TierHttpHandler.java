@@ -62,7 +62,7 @@ public abstract class TierHttpHandler implements Runnable {
 	public abstract String getName();
 
 	public void doWorkCPU() {
-		long delay = Long.valueOf(Math.round(dist.getNumericalMean() * 1000000));
+		long delay = Long.valueOf(Math.round(this.stime * 1000000));
 
 //		java.util.Random r = new java.util.Random();
 //		double noise = r.nextGaussian() * Math.sqrt(this.stime/500) + this.stime;
@@ -111,13 +111,12 @@ public abstract class TierHttpHandler implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
+			this.lqntask.ncmp.incrementAndGet();
 			Map<String, String> params = this.getLqntask().queryToMap(this.req.getRequestURI().getQuery());
 			int qlen = this.getLqntask().getState().get(params.get("entry") + "_ex").get()
 					+ this.getLqntask().getState().get(params.get("entry") + "_bl").get();
 			this.getLqntask().getRts().addSample(
 					new rtSample(this.getLqntask().getEnqueueTime().get(params.get("id")), System.nanoTime(), qlen));
-
-			this.lqntask.ncmp.addAndGet(1);
 		}
 	}
 
