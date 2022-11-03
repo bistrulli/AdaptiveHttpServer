@@ -88,7 +88,7 @@ public class Ctrl extends Thread {
 
 	private void actuateCtrl(double core) {
 		Long quota = Double.valueOf(Math.ceil(core * this.period)).longValue();
-		//System.out.println(core + " " + quota);
+		// System.out.println(core + " " + quota);
 
 		try {
 			this.task.setThreadPoolSize(Math.max(1, Double.valueOf(Math.ceil(core)).intValue()));
@@ -129,47 +129,48 @@ public class Ctrl extends Thread {
 		if (this.k > 1) {
 			double Ts = (t_k - t_km1) / 1e09;
 			ros_km1_meas = (this.task.getNcmp().get() - this.ncp_km1) / Ts;
-			taur_meas = this.qlen / ros_km1_meas;
-			sigma_km1_meas = cores_km1 / ros_km1_meas;
-			e_k = this.tauro - taur_meas;
-			u_k = u_km1 + e_k - alpha * e_km1;
-			cores_k = sigma_km1_meas * l_k / ((1 - alpha) * u_k + alpha * taur_meas);
-			
-			
-			System.out.println(alpha+" "+u_k+" "+taur_meas+" "+e_k+" "+ros_km1_meas+" "+Ts);
-			cores_k = Math.min(this.cores_max, Math.max(this.cores_min, cores_k));
-			// this.task.setHwCore(Double.valueOf(cores_k).floatValue());
-			this.actuateCtrl(cores_k);
+			if (ros_km1_meas > 0) {
+				taur_meas = this.qlen / ros_km1_meas;
+				sigma_km1_meas = cores_km1 / ros_km1_meas;
+				e_k = this.tauro - taur_meas;
+				u_k = u_km1 + e_k - alpha * e_km1;
+				cores_k = sigma_km1_meas * l_k / ((1 - alpha) * u_k + alpha * taur_meas);
 
-			u_k = (alpha * cores_k * taur_meas - l_k * sigma_km1_meas) / ((alpha - 1) * cores_k);
+				System.out.println(alpha + " " + u_k + " " + taur_meas + " " + e_k + " " + ros_km1_meas + " " + Ts);
+				cores_k = Math.min(this.cores_max, Math.max(this.cores_min, cores_k));
+				// this.task.setHwCore(Double.valueOf(cores_k).floatValue());
+				this.actuateCtrl(cores_k);
 
-			this.vcores.add(cores_k);
-			this.vrt.add(this.rtAvg);
-			this.vctrlTime.add(this.t_k);
-			this.vU.add(u_k);
+				u_k = (alpha * cores_k * taur_meas - l_k * sigma_km1_meas) / ((alpha - 1) * cores_k);
 
-			// devo salvare il mat con i dati dell'esperimento
-			if (k > 100) {
-				System.out.println("saving mat");
-				MatFile matFile = Mat5.newMatFile();
-				Matrix rtMatrix = Mat5.newMatrix(1, this.vrt.size());
-				Matrix coreMatrix = Mat5.newMatrix(1, this.vcores.size());
-				Matrix timeMatrix = Mat5.newMatrix(1, this.vctrlTime.size());
-				Matrix uMatrix = Mat5.newMatrix(1, this.vU.size());
-				for (int i = 0; i < this.vrt.size(); i++) {
-					rtMatrix.setDouble(0, i, this.vrt.get(i));
-					coreMatrix.setDouble(0, i, this.vcores.get(i));
-					timeMatrix.setDouble(0, i, this.vctrlTime.get(i));
-					uMatrix.setDouble(0, i, this.vU.get(i));
-				}
-				matFile.addArray("rt", rtMatrix);
-				matFile.addArray("core", coreMatrix);
-				matFile.addArray("ctime", timeMatrix);
-				matFile.addArray("u", uMatrix);
-				try {
-					Mat5.writeToFile(matFile, this.task.getName() + "out.mat");
-				} catch (IOException e) {
-					e.printStackTrace();
+				this.vcores.add(cores_k);
+				this.vrt.add(this.rtAvg);
+				this.vctrlTime.add(this.t_k);
+				this.vU.add(u_k);
+
+				// devo salvare il mat con i dati dell'esperimento
+				if (k > 100) {
+					System.out.println("saving mat");
+					MatFile matFile = Mat5.newMatFile();
+					Matrix rtMatrix = Mat5.newMatrix(1, this.vrt.size());
+					Matrix coreMatrix = Mat5.newMatrix(1, this.vcores.size());
+					Matrix timeMatrix = Mat5.newMatrix(1, this.vctrlTime.size());
+					Matrix uMatrix = Mat5.newMatrix(1, this.vU.size());
+					for (int i = 0; i < this.vrt.size(); i++) {
+						rtMatrix.setDouble(0, i, this.vrt.get(i));
+						coreMatrix.setDouble(0, i, this.vcores.get(i));
+						timeMatrix.setDouble(0, i, this.vctrlTime.get(i));
+						uMatrix.setDouble(0, i, this.vU.get(i));
+					}
+					matFile.addArray("rt", rtMatrix);
+					matFile.addArray("core", coreMatrix);
+					matFile.addArray("ctime", timeMatrix);
+					matFile.addArray("u", uMatrix);
+					try {
+						Mat5.writeToFile(matFile, this.task.getName() + "out.mat");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 
