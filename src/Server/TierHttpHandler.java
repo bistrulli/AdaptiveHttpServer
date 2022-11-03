@@ -62,7 +62,7 @@ public abstract class TierHttpHandler implements Runnable {
 	public abstract String getName();
 
 	public void doWorkCPU() {
-		long delay = Long.valueOf(Math.round(this.stime * 1000000));
+		long delay = Long.valueOf(Math.round(this.dist.sample() * 1000000));
 
 //		java.util.Random r = new java.util.Random();
 //		double noise = r.nextGaussian() * Math.sqrt(this.stime/500) + this.stime;
