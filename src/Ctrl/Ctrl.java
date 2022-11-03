@@ -127,9 +127,9 @@ public class Ctrl extends Thread {
 		this.u_k = 0;
 
 		if (this.k > 1) {
-			double Ts = (t_k - t_km1) / 1e09;
-			ros_km1_meas = (this.task.getNcmp().get() - this.ncp_km1) / Ts;
-			if (ros_km1_meas > 0) {
+			if (this.task.getNcmp().get() - this.ncp_km1 > 0) {
+				double Ts = (t_k - t_km1) / 1e09;
+				ros_km1_meas = (this.task.getNcmp().get() - this.ncp_km1) / Ts;
 				taur_meas = this.qlen / ros_km1_meas;
 				sigma_km1_meas = cores_km1 / ros_km1_meas;
 				e_k = this.tauro - taur_meas;
@@ -173,16 +173,15 @@ public class Ctrl extends Thread {
 					}
 				}
 			}
-
+			
+			this.t_km1 = t_k;
+			this.l_km1 = l_k;
+			this.e_km1 = e_k;
+			this.u_km1 = u_k;
+			this.ncp_km1 = this.task.getNcmp().get();
+			this.cores_km1 = cores_k;
+			this.t = System.nanoTime();
 		}
-
-		this.t_km1 = t_k;
-		this.l_km1 = l_k;
-		this.e_km1 = e_k;
-		this.u_km1 = u_k;
-		this.ncp_km1 = this.task.getNcmp().get();
-		this.cores_km1 = cores_k;
-		this.t = System.nanoTime();
 	}
 
 	public Integer getNr() {
