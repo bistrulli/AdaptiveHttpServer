@@ -177,7 +177,7 @@ public class Ctrl extends Thread {
 			}
 			
 			try {
-				TimeUnit.MILLISECONDS.sleep(30);
+				TimeUnit.MILLISECONDS.sleep(15);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
