@@ -1,20 +1,20 @@
 package monitoring;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class rtSampler {
 
-	private ConcurrentLinkedQueue<rtSample> rt = null;
+	private LinkedBlockingQueue<rtSample> rt = null;
 
 	public rtSampler() {
-		this.rt = new ConcurrentLinkedQueue<rtSample>();
+		this.rt = new LinkedBlockingQueue<rtSample>();
 	}
 
 	public void addSample(rtSample sample) {
 		this.rt.add(sample);
 	}
 	
-	public ConcurrentLinkedQueue<rtSample> getSamples() {
+	public LinkedBlockingQueue<rtSample> getSamples() {
 		return this.rt;
 	}
 
