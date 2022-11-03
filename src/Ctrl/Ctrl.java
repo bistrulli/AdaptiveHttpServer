@@ -88,7 +88,7 @@ public class Ctrl extends Thread {
 
 	private void actuateCtrl(double core) {
 		Long quota = Double.valueOf(Math.ceil(core * this.period)).longValue();
-		// System.out.println(core + " " + quota);
+		//System.out.println(core + " " + quota);
 
 		try {
 			this.task.setThreadPoolSize(Math.max(1, Double.valueOf(Math.ceil(core)).intValue()));
@@ -128,14 +128,19 @@ public class Ctrl extends Thread {
 
 		if (this.k > 1) {
 			double Ts = (t_k - t_km1) / 1e09;
-			ros_km1_meas = this.nr / Ts;
+			if(this.task.getNcmp().get() - this.ncp_km1>0)
+				ros_km1_meas = (this.task.getNcmp().get() - this.ncp_km1)/Ts;
+			else
+				ros_km1_meas = this.nr/Ts;
+					
 			taur_meas = this.qlen / ros_km1_meas;
 			sigma_km1_meas = cores_km1 / ros_km1_meas;
 			e_k = this.tauro - taur_meas;
 			u_k = u_km1 + e_k - alpha * e_km1;
 			cores_k = sigma_km1_meas * l_k / ((1 - alpha) * u_k + alpha * taur_meas);
-
-			System.out.println(alpha + " " + u_k + " " + taur_meas + " " + e_k + " " + ros_km1_meas + " " + Ts);
+			
+			
+			System.out.println(alpha+" "+u_k+" "+taur_meas+" "+e_k+" "+ros_km1_meas+" "+Ts);
 			cores_k = Math.min(this.cores_max, Math.max(this.cores_min, cores_k));
 			// this.task.setHwCore(Double.valueOf(cores_k).floatValue());
 			this.actuateCtrl(cores_k);
