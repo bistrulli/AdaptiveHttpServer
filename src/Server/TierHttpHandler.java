@@ -38,9 +38,9 @@ public abstract class TierHttpHandler implements Runnable {
 	public TierHttpHandler(SimpleTask lqntask, HttpExchange req, long stime) {
 		this.setLqntask(lqntask);
 		// this.dist = new ExponentialDistribution(stime);
-		//this.dist = new NormalDistribution(stime, stime / 5.0);
+		// this.dist = new NormalDistribution(stime, stime / 5.0);
 		this.stime = stime;
-		this.dist=new TruncatedNormal(stime, stime/100.0, 0, Integer.MAX_VALUE);
+		this.dist = new TruncatedNormal(stime, stime / 100.0, 0, Integer.MAX_VALUE);
 		this.rnd = ThreadLocalRandom.current();
 		this.req = req;
 		// this.mgm = ManagementFactory.getThreadMXBean();
@@ -62,15 +62,15 @@ public abstract class TierHttpHandler implements Runnable {
 	public abstract String getName();
 
 	public void doWorkCPU() {
-		//long delay = Long.valueOf(Math.round(dist.sample() * 1000000));
-		
-		java.util.Random r = new java.util.Random();
-		double noise = r.nextGaussian() * Math.sqrt(this.stime/500) + this.stime;
-		
-		long delay = Long.valueOf(Math.round(noise * 1000000));
-		
+		long delay = Long.valueOf(Math.round(dist.getNumericalMean() * 1000000));
+
+//		java.util.Random r = new java.util.Random();
+//		double noise = r.nextGaussian() * Math.sqrt(this.stime/500) + this.stime;
+//		
+//		long delay = Long.valueOf(Math.round(noise * 1000000));
+
 		long start = this.mgm.getCurrentThreadCpuTime();
-		while ((this.mgm.getCurrentThreadCpuTime() - start) < delay) {
+			while ((this.mgm.getCurrentThreadCpuTime() - start) < delay) {
 		}
 	}
 
