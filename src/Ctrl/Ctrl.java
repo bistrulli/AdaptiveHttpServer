@@ -128,10 +128,8 @@ public class Ctrl extends Thread {
 
 		if (this.k > 1) {
 			double Ts = (t_k - t_km1) / 1e09;
-			if(this.task.getNcmp().get() - this.ncp_km1>0)
-				ros_km1_meas = (this.task.getNcmp().get() - this.ncp_km1)/Ts;
-			else
-				ros_km1_meas = this.nr/Ts;
+
+			ros_km1_meas = (this.task.getNcmp().get() - this.ncp_km1)/Ts;
 					
 			taur_meas = this.qlen / ros_km1_meas;
 			sigma_km1_meas = cores_km1 / ros_km1_meas;
