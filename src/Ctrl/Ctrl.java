@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import Server.SimpleTask;
 import monitoring.rtSample;
@@ -173,6 +174,12 @@ public class Ctrl extends Thread {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+			}
+			
+			try {
+				TimeUnit.MILLISECONDS.sleep(10);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 
 		}
