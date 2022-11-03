@@ -67,14 +67,15 @@ public class Ctrl extends Thread {
 		super.run();
 		rtSample sample = null;
 		while (true) {
-			this.t = System.nanoTime();
 			if (this.rtSampler.getSamples().size() >= this.nr) {
 				double rtAvg_t = 0.0;
 				double qlen_t = 0.0;
+				this.t = System.nanoTime();
 				for (int nsamples = 0; nsamples < this.nr; nsamples++) {
 					sample = this.rtSampler.getSamples().poll();
 					if (sample.getEnd() != null && sample.getStart() != null) {
 						rtAvg_t += sample.getEnd() - sample.getStart();
+
 					}
 					qlen_t += sample.getQlen();
 				}
@@ -127,7 +128,7 @@ public class Ctrl extends Thread {
 
 		if (this.k > 1) {
 			double Ts = (t_k - t_km1) / 1e09;
-			ros_km1_meas = this.nr / Ts;
+			ros_km1_meas = (this.task.getNcmp().get() - this.ncp_km1) / Ts;
 			taur_meas = this.qlen / ros_km1_meas;
 			sigma_km1_meas = cores_km1 / ros_km1_meas;
 			e_k = this.tauro - taur_meas;
