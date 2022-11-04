@@ -130,7 +130,7 @@ public class Ctrl extends Thread {
 		if (this.k > 1) {
 
 			// aspetto fino a quando c'e un nuovo completamento
-			while (this.task.getNcmp().get() - this.ncp_km1 > 0) {
+			while (this.task.getNcmp().get() - this.ncp_km1 <= 0) {
 				System.out.println("waiting for completion");
 				try {
 					TimeUnit.MILLISECONDS.sleep(5);
