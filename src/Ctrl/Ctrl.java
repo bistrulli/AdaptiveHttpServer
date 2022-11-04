@@ -133,7 +133,7 @@ public class Ctrl extends Thread {
 			while (this.task.getNcmp().get() - this.ncp_km1 <= 0) {
 				System.out.println("waiting for completion");
 				try {
-					TimeUnit.MILLISECONDS.sleep(5);
+					TimeUnit.MILLISECONDS.sleep(1);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
