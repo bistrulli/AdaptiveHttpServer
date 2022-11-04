@@ -186,6 +186,12 @@ public class Ctrl extends Thread {
 					e.printStackTrace();
 				}
 			}
+			
+			try {
+				TimeUnit.MILLISECONDS.sleep(10);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 
 		}
 
