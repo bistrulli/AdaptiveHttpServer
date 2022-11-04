@@ -137,6 +137,8 @@ public class Ctrl extends Thread {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+				this.t=System.nanoTime();
+				this.t_k=System.nanoTime();
 			}
 
 			double Ts = (t_k - t_km1) / 1e09;
