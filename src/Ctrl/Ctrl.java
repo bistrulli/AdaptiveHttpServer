@@ -72,17 +72,15 @@ public class Ctrl extends Thread {
 				double rtAvg_t = 0.0;
 				double qlen_t = 0.0;
 				this.t = System.nanoTime();
-				for (int nsamples = 0; nsamples < this.nr; nsamples++) {
-					sample = this.rtSampler.getSamples().poll();
-					if (sample.getEnd() != null && sample.getStart() != null) {
-						rtAvg_t += sample.getEnd() - sample.getStart();
-
-					}
+				double nsample=0;
+				while ((sample = this.rtSampler.getSamples().poll()) != null) {
+					rtAvg_t += sample.getEnd() - sample.getStart();
 					qlen_t += sample.getQlen();
+					nsample+=1;
 				}
-				this.rtAvg = rtAvg_t / (1e09 * this.nr);
-				this.qlen = qlen_t / this.nr;
-				this.doCtrl();
+				this.rtAvg = rtAvg_t / (1e09 * nsample);
+				this.qlen = qlen_t / nsample;
+				this.doCtrl(nsample);
 			}
 		}
 	}
@@ -108,7 +106,7 @@ public class Ctrl extends Thread {
 
 	}
 
-	private void doCtrl() {
+	private void doCtrl(double ncmp) {
 		System.out.println("rt=%s, qlen=%s".formatted(new Object[] { this.rtAvg, this.qlen }));
 		this.k++;
 
@@ -130,19 +128,18 @@ public class Ctrl extends Thread {
 		if (this.k > 1) {
 
 			// aspetto fino a quando c'e un nuovo completamento
-			while (this.task.getNcmp().get() - this.ncp_km1 <= 0) {
-				System.out.println("waiting for completion");
-				try {
-					TimeUnit.MILLISECONDS.sleep(1);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				this.t=System.nanoTime();
-				this.t_k=System.nanoTime();
-			}
+//			while (this.task.getNcmp().get() - this.ncp_km1 <= 0) {
+//				System.out.println("waiting for completion");
+//				try {
+//					TimeUnit.MILLISECONDS.sleep(1);
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+//				
+//			}
 
 			double Ts = (t_k - t_km1) / 1e09;
-			ros_km1_meas = (this.task.getNcmp().get() - this.ncp_km1) / Ts;
+			ros_km1_meas = (ncmp - this.ncp_km1) / Ts;
 
 			taur_meas = this.qlen / ros_km1_meas;
 			sigma_km1_meas = cores_km1 / ros_km1_meas;
@@ -186,20 +183,13 @@ public class Ctrl extends Thread {
 					e.printStackTrace();
 				}
 			}
-			
-			try {
-				TimeUnit.MILLISECONDS.sleep(10);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-
 		}
 
 		this.t_km1 = t_k;
 		this.l_km1 = l_k;
 		this.e_km1 = e_k;
 		this.u_km1 = u_k;
-		this.ncp_km1 = this.task.getNcmp().get();
+		this.ncp_km1 = ncmp;
 		this.cores_km1 = cores_k;
 		this.t = System.nanoTime();
 	}
