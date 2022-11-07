@@ -139,7 +139,7 @@ public class Ctrl extends Thread {
 //			}
 
 			double Ts = (t_k - t_km1) / 1e09;
-			ros_km1_meas = (ncmp - this.ncp_km1) / Ts;
+			ros_km1_meas = (ncmp) / Ts;
 
 			taur_meas = this.qlen / ros_km1_meas;
 			sigma_km1_meas = cores_km1 / ros_km1_meas;
