@@ -81,6 +81,12 @@ public class Ctrl extends Thread {
 				this.rtAvg = rtAvg_t / (1e09 * nsample);
 				this.qlen = qlen_t / nsample;
 				this.doCtrl(nsample);
+			}else {
+				try {
+					TimeUnit.MILLISECONDS.sleep(5);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
