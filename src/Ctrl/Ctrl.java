@@ -83,7 +83,7 @@ public class Ctrl extends Thread {
 				this.doCtrl(nsample);
 			}else {
 				try {
-					TimeUnit.MILLISECONDS.sleep(5);
+					TimeUnit.MILLISECONDS.sleep(2);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -118,7 +118,14 @@ public class Ctrl extends Thread {
 
 		String sla = this.j.get(this.task.getName() + "_sla");
 		if (sla != null) {
-			this.tauro = Double.valueOf(sla);
+			double sla2=Double.valueOf(sla);
+			if(sla2<0) {
+				this.cores_max=2;
+			}else {
+				this.cores_max=Runtime.getRuntime().availableProcessors()-1;
+			}
+			System.out.println("max core "+this.cores_max);
+			this.tauro = Math.abs(sla2);
 		}
 
 		this.t_k = this.t;
