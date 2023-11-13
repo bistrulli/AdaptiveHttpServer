@@ -49,6 +49,9 @@ public class TCPServer extends Thread {
 						writer.println(stTcp);
 						break;
 					}
+					case "dumpRT":{
+						System.out.println("dump response time");
+					}
 					case "q": {
 						reader.close();
 						output.close();

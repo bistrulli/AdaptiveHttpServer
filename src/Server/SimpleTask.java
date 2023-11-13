@@ -105,8 +105,10 @@ public class SimpleTask {
 		this.setEmulated(isEmulated);
 		this.jedisHost = jedisHost;
 		this.initState();
-		this.sts = new TCPServer(port + 10000, this);
-		//this.sts.start();
+		if(rtSamplingPeriod!=null) {
+			this.sts = new TCPServer(port + 10000, this);
+			this.sts.start();
+		}
 		try {
 			this.server = HttpServer.create(new InetSocketAddress("127.0.0.1", port), this.backlogsize);
 			this.setPort(port);
@@ -122,6 +124,8 @@ public class SimpleTask {
 		this.sTimes = sTimes;
 		
 		this.ncmp=new AtomicInteger(0);
+		
+		this.rts = new rtSampler();
 
 		if (aHperiod != null) {
 			// ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
@@ -129,12 +133,10 @@ public class SimpleTask {
 			// se.scheduleAtFixedRate(this.adaptHandler, 0, aHperiod,
 			// TimeUnit.MILLISECONDS);
 		}
-
-		this.rts = new rtSampler();
 		
 		
-		this.ctrl = new Ctrl(this,this.rts);
-		this.ctrl.start();
+//		this.ctrl = new Ctrl(this,this.rts);
+//		this.ctrl.start();
 		
 		
 	}
