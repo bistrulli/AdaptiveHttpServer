@@ -106,7 +106,7 @@ public class SimpleTask {
 		//this.sts = new TCPServer(port + 10000, this);
 		//this.sts.start();
 		try {
-			this.server = HttpServer.create(new InetSocketAddress("127.0.0.1", port), this.backlogsize);
+			this.server = HttpServer.create(new InetSocketAddress("0.0.0.0", port), this.backlogsize);
 			this.setPort(port);
 			this.server.createContext("/", new AcquireHttpHandler(this));
 			// this.server.setExecutor(java.util.concurrent.Executors.newFixedThreadPool(20));
