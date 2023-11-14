@@ -103,8 +103,8 @@ public class SimpleTask {
 		this.setEmulated(isEmulated);
 		this.jedisHost = jedisHost;
 		this.initState();
-		this.sts = new TCPServer(port + 10000, this);
-		this.sts.start();
+		//this.sts = new TCPServer(port + 10000, this);
+		//this.sts.start();
 		try {
 			this.server = HttpServer.create(new InetSocketAddress("127.0.0.1", port), this.backlogsize);
 			this.setPort(port);
@@ -210,8 +210,8 @@ public class SimpleTask {
 		// this.threadpool.allowCoreThreadTimeOut(true);
 		this.jedisHost = jedisHost;
 		this.initState();
-		this.sts = new TCPServer(3333, this);
-		this.sts.start();
+//		this.sts = new TCPServer(3333, this);
+//		this.sts.start();
 		if (stSamplerPeriod != null) {
 			ScheduledExecutorService se = Executors.newSingleThreadScheduledExecutor();
 			StateSampler client_sampler = new StateSampler(jedisHost, this);
@@ -245,8 +245,8 @@ public class SimpleTask {
 		if (!this.isGenerator && this.getServer() != null) {
 			this.getServer().start();
 			//start the adaptation listener (lo devo fare come ultimo task in quanto bloccante)
-			Jedis j = this.jedisPool.getResource();
-			j.psubscribe(new AdaptationListener(this), "__key*__:"+this.getName()+"_hw");
+			//Jedis j = this.jedisPool.getResource();
+			//j.psubscribe(new AdaptationListener(this), "__key*__:"+this.getName()+"_hw");
 		}
 		if (this.isGenerator) {
 			// only in case of workload generator, I assume that there is only one client
@@ -375,11 +375,11 @@ public class SimpleTask {
 	}
 
 	public void initJedisPool(int poolSize, String poolAddr) {
-		JedisPoolConfig cfg = new JedisPoolConfig();
-		cfg.setMaxTotal(poolSize);
-		cfg.setFairness(true);
-		//cfg.setMaxWaitMillis(10000);
-		this.jedisPool = new JedisPool(cfg, poolAddr);
+//		JedisPoolConfig cfg = new JedisPoolConfig();
+//		cfg.setMaxTotal(poolSize);
+//		cfg.setFairness(true);
+//		//cfg.setMaxWaitMillis(10000);
+//		this.jedisPool = new JedisPool(cfg, poolAddr);
 	}
 
 	public void initJedisPool() {

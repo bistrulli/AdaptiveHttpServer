@@ -17,7 +17,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.sun.net.httpserver.HttpExchange;
 
-import jni.GetThreadID;
+//import jni.GetThreadID;
 import monitoring.rtSample;
 
 public abstract class TierHttpHandler implements Runnable {
@@ -115,7 +115,8 @@ public abstract class TierHttpHandler implements Runnable {
 	public void addToCGV2Group(String gname) {
 		if (this.lqntask.getIsCgv2()) {
 			try {
-				int tid = GetThreadID.get_tid();
+				int tid=0;
+				//int tid = GetThreadID.get_tid();
 				// aggiungo questo thread al gruppo dei serventi del tier
 				BufferedWriter out;
 				try {
